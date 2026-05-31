@@ -1,0 +1,42 @@
+{
+  "name": "equimanage-desktop",
+  "version": "1.0.0",
+  "description": "EquiManage — Horse Riding School Management",
+  "main": "electron/main.js",
+  "author": "EquiManage",
+  "private": true,
+  "scripts": {
+    "electron:dev": "concurrently \"npm run backend:dev\" \"npm run react:dev\" \"wait-on http://localhost:5173 && wait-on tcp:8000 && electron .\"",
+    "react:dev": "cd ../forntend/web && npm run dev",
+    "backend:dev": "cd ../backend && python manage.py runserver 8000",
+    "react:build": "cd ../forntend/web && npm run build",
+    "backend:build": "cd ../backend && python -m pip install pyinstaller waitress django djangorestframework djangorestframework-simplejwt django-cors-headers && cross-env DJANGO_SETTINGS_MODULE=conf.settings pyinstaller --noconfirm --onedir --name backend_server --add-data \"apps;apps\" --add-data \"conf;conf\" --add-data \"manage.py;.\" manage.py",
+    "electron:build": "npm run react:build && electron-builder --win"
+  },
+  "build": {
+    "appId": "com.equimanage.desktop",
+    "productName": "EquiManage",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "extraFiles": [
+      {
+        "from": "../forntend/web/dist",
+        "to": "app/dist"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "electron/assets/icon.ico",
+      "signAndEditExecutable": false
+    }
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.0",
+    "cross-env": "^10.1.0",
+    "electron": "^42.3.0",
+    "electron-builder": "^26.8.1",
+    "electron-is-dev": "^3.0.1",
+    "wait-on": "^9.0.10"
+  }
+}

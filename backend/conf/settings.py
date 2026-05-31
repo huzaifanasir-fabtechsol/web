@@ -10,7 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
+import sys
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,9 +40,22 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'apps.accounts',
+    'apps.horse',
+    'apps.students',
+    'apps.course',
+    'apps.worker',
+    'apps.billing',
+    'apps.attendance',
+    'apps.dashboard',
+    'apps.reports',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -72,10 +88,21 @@ WSGI_APPLICATION = 'conf.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+# Detect if running in PyInstaller bundle (production mode)
+IS_FROZEN = getattr(sys, 'frozen', False)
+
+if IS_FROZEN:
+    # Use AppData folder for writable files in production
+    app_data_dir = Path(os.environ.get('APPDATA', os.path.expanduser('~'))) / 'EquiManage'
+    app_data_dir.mkdir(parents=True, exist_ok=True)
+    DATABASE_PATH = app_data_dir / 'db.sqlite3'
+else:
+    DATABASE_PATH = BASE_DIR / 'db.sqlite3'
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': DATABASE_PATH,
     }
 }
 
@@ -115,3 +142,38 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+AUTH_USER_MODEL = 'accounts.User'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+}
+
+FRONTEND_URL = 'http://localhost:5173'
+
+# Dynamic SMTP backend — reads host/port/credentials from SystemSettings at runtime.
+# Falls back to console backend during first-time setup when SMTP isn't configured.
+EMAIL_BACKEND = 'apps.accounts.email_backend.DynamicSMTPBackend'
+# Fallback from_email (SystemSettings.default_from_email is used when available)
+DEFAULT_FROM_EMAIL = 'noreply@equimanage.com'
+
+MEDIA_URL = '/media/'
+if IS_FROZEN:
+    app_data_dir = Path(os.environ.get('APPDATA', os.path.expanduser('~'))) / 'EquiManage'
+    MEDIA_ROOT = app_data_dir / 'media'
+else:
+    MEDIA_ROOT = BASE_DIR / 'media'
+
+# CORS
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+]
+CORS_ALLOW_CREDENTIALS = True
