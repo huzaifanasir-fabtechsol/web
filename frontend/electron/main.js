@@ -1,42 +1,10 @@
 const { app, BrowserWindow, shell } = require('electron');
 const path = require('path');
-const { spawn } = require('child_process');
-const isDev = require('electron-is-dev');
+const isDev = !app.isPackaged;
 
 let mainWindow;
-let backendProcess;
 
-function startBackend() {
-  if (isDev) {
-    console.log("Running in development mode. Django backend is managed by concurrently script.");
-    return;
-  }
 
-  // In production, run the bundled backend_server.exe
-  const backendPath = path.join(
-    process.resourcesPath,
-    'app',
-    'backend_server',
-    'backend_server.exe'
-  );
-
-  console.log("Starting production backend from:", backendPath);
-
-  // Launch backend silently in the background
-  backendProcess = spawn(backendPath, ['runserver', '127.0.0.1:8000', '--noreload'], {
-    cwd: path.dirname(backendPath),
-    stdio: 'ignore', // hides the console window popup
-    windowsHide: true // prevents command prompt from flashing
-  });
-
-  backendProcess.on('error', (err) => {
-    console.error('Failed to start backend process:', err);
-  });
-
-  backendProcess.on('exit', (code, signal) => {
-    console.log(`Backend process exited with code ${code} and signal ${signal}`);
-  });
-}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -92,7 +60,6 @@ if (!gotTheLock) {
   });
 
   app.whenReady().then(() => {
-    // startBackend();
     createWindow();
 
     app.on('activate', () => {
@@ -107,9 +74,4 @@ app.on('window-all-closed', () => {
   }
 });
 
-app.on('will-quit', () => {
-  if (backendProcess) {
-    console.log("Terminating Django backend process...");
-    // backendProcess.kill();
-  }
-});
+

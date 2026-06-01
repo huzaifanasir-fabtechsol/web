@@ -1,5 +1,7 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+
+// const Router = window.navigator.userAgent.includes('Electron') ? HashRouter : BrowserRouter;
 import Layout from "./components/Layout";
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -83,11 +85,11 @@ function AppRoutes() {
 
 function App() {
   return (
-    <BrowserRouter>
+    <Router>
       <AuthProvider>
         <AppRoutes />
       </AuthProvider>
-    </BrowserRouter>
+    </Router>
   );
 }
 

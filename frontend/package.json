@@ -19,7 +19,7 @@
     "directories": {
       "output": "dist-electron"
     },
-    "extraFiles": [
+    "extraResources": [
       {
         "from": "../forntend/web/dist",
         "to": "app/dist"
@@ -36,7 +36,6 @@
     "cross-env": "^10.1.0",
     "electron": "^42.3.0",
     "electron-builder": "^26.8.1",
-    "electron-is-dev": "^3.0.1",
     "wait-on": "^9.0.10"
   }
 }
