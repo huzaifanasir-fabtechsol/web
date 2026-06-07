@@ -37,7 +37,11 @@ const PRINT_CSS = `
     .sidebar, .topbar, .hide-on-print { display: none !important; }
     .main { margin: 0 !important; padding: 0 !important; }
     .content { padding: 0 !important; }
-    .receipt-printable, .receipt-printable * { visibility: visible !important; }
+    .receipt-printable, .receipt-printable * {
+      visibility: visible !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
     .receipt-printable {
       position: fixed !important;
       left: 0 !important; top: 0 !important;
@@ -172,18 +176,32 @@ export default function Receipt() {
             HEADER BANNER
         ─────────────────────────────────────────── */}
         <div style={{
-          background: "linear-gradient(135deg, #1a1506 0%, #3d2e04 40%, #5c4210 70%, #1a1506 100%)",
-          padding: "28px 36px",
           position: "relative",
+          padding: "28px 36px",
           overflow: "hidden",
         }}>
-          {/* Decorative horse silhouette overlay */}
+          {/* Background Image (safe for printing as it's a real img tag) */}
+          <img
+            src="/login-bg.png"
+            alt="Receipt Header Background"
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              zIndex: 0,
+            }}
+          />
+          {/* Dark / Gold Gradient Overlay to ensure text legibility */}
           <div style={{
-            position:"absolute", right:0, top:0, bottom:0, width:"50%",
-            background: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 120'%3E%3Cellipse cx='160' cy='80' rx='50' ry='30' fill='rgba(255,255,255,.04)'/%3E%3C/svg%3E\") center/cover no-repeat",
+            position: "absolute",
+            inset: 0,
+            background: "linear-gradient(135deg, rgba(26, 21, 6, 0.9) 0%, rgba(61, 46, 4, 0.85) 40%, rgba(92, 66, 16, 0.85) 70%, rgba(26, 21, 6, 0.9) 100%)",
+            zIndex: 1,
           }} />
 
-          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", position:"relative", zIndex:1 }}>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", position:"relative", zIndex:2 }}>
             {/* School Identity */}
             <div>
               <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:10 }}>
@@ -315,7 +333,7 @@ export default function Receipt() {
 
             {/* Course Name — only for Course Fee */}
             {showCourse ? (
-              <ReceiptField label="Course Name" value={txn?.course_name || "—"} />
+              <ReceiptField label="Course Name" value={txn?.course_detail?.name || txn?.course_name || "—"} />
             ) : (
               <ReceiptField label="Course Name" value="N/A" muted />
             )}
