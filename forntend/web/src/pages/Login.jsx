@@ -406,7 +406,7 @@ export default function Login() {
       `}</style>
 
       <div className={`login-card-new ${shake ? 'shake' : ''}`}>
-        
+
         {/* Logo */}
         <div className="login-logo-container">
           <div className="logo-symbol">
@@ -467,7 +467,7 @@ export default function Login() {
           </div>
 
           {/* Remember Me Checkbox */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, width: '100%' }}>
+          {/* <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, width: '100%' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', userSelect: 'none' }}>
               <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} style={{ display: 'none' }} />
               <span style={{ width: 17, height: 17, borderRadius: 4, flexShrink: 0, border: `1.5px solid ${rememberMe ? '#5191c1' : '#d1d5db'}`, background: rememberMe ? '#5191c1' : '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}>
@@ -475,7 +475,7 @@ export default function Login() {
               </span>
               <span style={{ fontSize: 13, color: '#555555', fontWeight: 500 }}>Remember Me</span>
             </label>
-          </div>
+          </div> */}
 
           {/* Submit Button */}
           <button
@@ -494,11 +494,6 @@ export default function Login() {
         {/* Forgot Password */}
         <Link to="/forgot-password" className="link-forgot-new">Forgot Password?</Link>
 
-        {/* Register Text */}
-        <div className="register-text-new">
-          To register your interest in HRS, <a href="#" className="register-link-new">click here to fill in our enquiry form</a>
-        </div>
-
         {/* Connect Header */}
         <div className="connect-header-new">Connect with HRS</div>
 
@@ -511,7 +506,7 @@ export default function Login() {
         </div>
 
         {/* App Downloads */}
-        <div className="app-downloads-new">
+        {/* <div className="app-downloads-new">
           <a href="#" className="app-btn-new">
             <i className="fa-brands fa-apple app-icon-new"></i>
             <div className="app-btn-text-new">
@@ -526,7 +521,7 @@ export default function Login() {
               <span className="app-main-text-new">Google Play</span>
             </div>
           </a>
-        </div>
+        </div> */}
 
       </div>
     </div>
