@@ -25,7 +25,7 @@ export default function Sidebar() {
         <i className="fa-solid fa-chart-pie"></i> Dashboard
       </NavLink>
       <NavLink to="/students" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
-        <i className="fa-solid fa-user-graduate"></i> Students <span className="badge">142</span>
+        <i className="fa-solid fa-user-graduate"></i> Students <span className="badge"></span>
       </NavLink>
       {/* <NavLink to="/riders" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
         <i className="fa-solid fa-person-biking"></i> Riders
