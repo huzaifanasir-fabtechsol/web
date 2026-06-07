@@ -10,12 +10,68 @@ upstream django_backend {
     # server unix:/home/deploy/EquiManage/backend/equimanage.sock;
 }
 
-# HTTP - Redirect all traffic to HTTPS
+# HTTP - Direct proxy for development, Vercel proxying, and HTTP deployments
 server {
-    listen 80;
-    listen [::]:80;
-    server_name api.equimanage.com;
-    return 301 https://$host$request_uri;
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
+
+    client_max_body_size 20M;
+
+    # Serve static files (Django Admin assets, etc.) directly via Nginx
+    location /static/ {
+        # Path to settings.STATIC_ROOT directory (update to match your VPS path)
+        alias /home/deploy/EquiManage/backend/staticfiles/;
+        expires 30d;
+        add_header Cache-Control "public, no-transform";
+
+        # Enable CORS for static assets
+        add_header Access-Control-Allow-Origin "*" always;
+        add_header Access-Control-Allow-Methods "GET, OPTIONS" always;
+        add_header Access-Control-Allow-Headers "Range" always;
+        add_header Access-Control-Expose-Headers "Content-Length,Content-Range" always;
+
+        if ($request_method = 'OPTIONS') {
+            return 204;
+        }
+    }
+
+    # Serve media files (uploaded avatars, student pictures, etc.) directly via Nginx
+    location /media/ {
+        # Path to settings.MEDIA_ROOT directory (update to match your VPS path)
+        alias /home/deploy/EquiManage/backend/media/;
+        expires 30d;
+        add_header Cache-Control "public, no-transform";
+        
+        # Enable CORS for media uploads
+        add_header Access-Control-Allow-Origin "*" always;
+        add_header Access-Control-Allow-Methods "GET, OPTIONS" always;
+        add_header Access-Control-Allow-Headers "Range" always;
+        add_header Access-Control-Expose-Headers "Content-Length,Content-Range" always;
+        
+        if ($request_method = 'OPTIONS') {
+            return 204;
+        }
+    }
+
+    # Proxy all other API and web requests to Gunicorn
+    location / {
+        proxy_pass http://django_backend;
+        
+        # Standard proxy headers
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $server_name;
+        
+        proxy_redirect off;
+        proxy_buffering off;
+    }
 }
 
 # HTTPS
@@ -49,6 +105,16 @@ server {
         alias /home/deploy/EquiManage/backend/staticfiles/;
         expires 30d;
         add_header Cache-Control "public, no-transform";
+
+        # Enable CORS for static files (e.g. web fonts, static assets) loaded by frontend/desktop
+        add_header Access-Control-Allow-Origin "*" always;
+        add_header Access-Control-Allow-Methods "GET, OPTIONS" always;
+        add_header Access-Control-Allow-Headers "Range" always;
+        add_header Access-Control-Expose-Headers "Content-Length,Content-Range" always;
+        
+        if ($request_method = 'OPTIONS') {
+            return 204;
+        }
     }
 
     # Serve media files (uploaded avatars, horse/student/worker images) directly via Nginx
