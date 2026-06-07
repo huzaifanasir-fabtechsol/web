@@ -1,0 +1,36 @@
+# Git and repository configuration files
+.git
+.github
+.gitignore
+.gitattributes
+
+# Python build, cache, and virtual environments
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+venv/
+.venv/
+env/
+.env/
+
+# Django specific files
+db.sqlite3
+.env
+staticfiles/
+media/
+
+# IDE and OS files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Deployment artifacts and build outputs
+build/
+dist/
+*.spec
+nginx.conf.example
+docker-compose.yml
+.dockerignore
+Dockerfile

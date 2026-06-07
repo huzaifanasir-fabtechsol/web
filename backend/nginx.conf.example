@@ -1,0 +1,92 @@
+# EquiManage Nginx Configuration Example
+# Save this file to /etc/nginx/sites-available/equimanage and symlink it to sites-enabled
+# Replace 'api.equimanage.com' with your actual VPS domain name, and paths with your actual project location
+
+upstream django_backend {
+    # Points to Gunicorn or Uvicorn server running on localhost port 8000
+    server 127.0.0.1:8000;
+    
+    # Or, if using Unix sockets (faster and more secure):
+    # server unix:/home/deploy/EquiManage/backend/equimanage.sock;
+}
+
+# HTTP - Redirect all traffic to HTTPS
+server {
+    listen 80;
+    listen [::]:80;
+    server_name api.equimanage.com;
+    return 301 https://$host$request_uri;
+}
+
+# HTTPS
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name api.equimanage.com;
+
+    # SSL Certificate Paths (Let's Encrypt)
+    # Generate these by running: sudo certbot --nginx -d api.equimanage.com
+    # ssl_certificate /etc/letsencrypt/live/api.equimanage.com/fullchain.pem;
+    # ssl_certificate_key /etc/letsencrypt/live/api.equimanage.com/privkey.pem;
+
+    # SSL Settings
+    # include /etc/letsencrypt/options-ssl-nginx.conf;
+    # ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    # Security Headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "no-referrer-when-downgrade" always;
+    add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
+
+    # Maximum upload size for images (avatars, student pictures, settings profile pictures)
+    client_max_body_size 20M;
+
+    # Serve static files (Django Admin assets, etc.) directly via Nginx
+    location /static/ {
+        # Path to settings.STATIC_ROOT directory
+        alias /home/deploy/EquiManage/backend/staticfiles/;
+        expires 30d;
+        add_header Cache-Control "public, no-transform";
+    }
+
+    # Serve media files (uploaded avatars, horse/student/worker images) directly via Nginx
+    location /media/ {
+        # Path to settings.MEDIA_ROOT directory
+        alias /home/deploy/EquiManage/backend/media/;
+        expires 30d;
+        add_header Cache-Control "public, no-transform";
+        
+        # Enable CORS for media files so frontend Web/Desktop can load them safely
+        # (Needed because media files are loaded directly from Nginx and bypass Django's CORS middleware)
+        add_header Access-Control-Allow-Origin "*" always;
+        add_header Access-Control-Allow-Methods "GET, OPTIONS" always;
+        add_header Access-Control-Allow-Headers "Range" always;
+        add_header Access-Control-Expose-Headers "Content-Length,Content-Range" always;
+        
+        if ($request_method = 'OPTIONS') {
+            return 204;
+        }
+    }
+
+    # Proxy all other API/Admin requests to Django (Gunicorn/Uvicorn)
+    location / {
+        proxy_pass http://django_backend;
+        
+        # Standard proxy headers
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $server_name;
+        
+        # Disable buffering for heavy responses or server-sent events if needed
+        proxy_redirect off;
+        proxy_buffering off;
+    }
+}

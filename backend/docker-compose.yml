@@ -1,0 +1,60 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: equimanage_web
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount the local codebase folder for hot-reloading in development
+      - .:/app
+      # Anonymous volumes prevent host machine node_modules/venv/staticfiles from overriding the container's contents
+      - /app/venv
+      # Named volumes for media and static assets to ensure persistence and Nginx accessibility
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    environment:
+      # Override the DB connection details to use the docker container db
+      - DB_HOST=db
+      - DB_PORT=5432
+      # Read other environment variables from the host's .env file
+      - DEBUG=${DEBUG:-True}
+      - SECRET_KEY=${SECRET_KEY:-django-insecure-docker-dev-key-1234567890}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost,127.0.0.1,web}
+      - CORS_ALLOW_ALL_ORIGINS=${CORS_ALLOW_ALL_ORIGINS:-True}
+      - DB_NAME=${DB_NAME:-equimanage_db}
+      - DB_USER=${DB_USER:-equimanage_user}
+      - DB_PASSWORD=${DB_PASSWORD:-equimanage_password}
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: always
+
+  db:
+    image: postgres:16-alpine
+    container_name: equimanage_db
+    environment:
+      - POSTGRES_DB=${DB_NAME:-equimanage_db}
+      - POSTGRES_USER=${DB_USER:-equimanage_user}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-equimanage_password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+volumes:
+  postgres_data:
+    driver: local
+  static_volume:
+    driver: local
+  media_volume:
+    driver: local
