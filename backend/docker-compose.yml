@@ -11,9 +11,9 @@ services:
       - .:/app
       # Anonymous volumes prevent host machine node_modules/venv/staticfiles from overriding the container's contents
       - /app/venv
-      # Named volumes for media and static assets to ensure persistence and Nginx accessibility
-      - static_volume:/app/staticfiles
-      - media_volume:/app/media
+      # Bind mount host directories for Nginx accessibility
+      - ./staticfiles:/app/staticfiles
+      - ./media:/app/media
     environment:
       # Override the DB connection details to use the docker container db
       - DB_HOST=db
@@ -53,8 +53,4 @@ services:
 
 volumes:
   postgres_data:
-    driver: local
-  static_volume:
-    driver: local
-  media_volume:
     driver: local
