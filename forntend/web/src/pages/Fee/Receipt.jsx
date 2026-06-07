@@ -30,9 +30,9 @@ const METHOD_ICON = {
 
 /* ─── print styles injected via <style> ──────────────────────────────────── */
 const PRINT_CSS = `
-  @page { size: A4 portrait; margin: 10mm 14mm; }
+  @page { size: A4 portrait; margin: 0; }
   @media print {
-    html, body { height: auto !important; overflow: visible !important; }
+    html, body { height: auto !important; overflow: visible !important; margin: 0 !important; padding: 0 !important; }
     body * { visibility: hidden; }
     .sidebar, .topbar, .hide-on-print { display: none !important; }
     .main { margin: 0 !important; padding: 0 !important; }
@@ -43,9 +43,12 @@ const PRINT_CSS = `
       print-color-adjust: exact !important;
     }
     .receipt-printable {
-      position: fixed !important;
-      left: 0 !important; top: 0 !important;
-      width: 100% !important; height: auto !important;
+      position: absolute !important;
+      left: 14mm !important;
+      top: 10mm !important;
+      right: 14mm !important;
+      width: auto !important;
+      height: auto !important;
       box-shadow: none !important;
       border: none !important;
       margin: 0 !important;
