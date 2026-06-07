@@ -1,7 +1,8 @@
-import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
-// const Router = window.navigator.userAgent.includes('Electron') ? HashRouter : BrowserRouter;
+const isElectron = typeof window !== "undefined" && window.navigator.userAgent.toLowerCase().includes("electron");
+const Router = isElectron ? HashRouter : BrowserRouter;
 import Layout from "./components/Layout";
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";

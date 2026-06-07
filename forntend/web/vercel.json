@@ -1,10 +1,6 @@
 {
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "https://api.hours-riding-school.me/api/:path*"
-    },
-    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
