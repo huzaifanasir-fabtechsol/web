@@ -197,7 +197,7 @@ export default function Receipt() {
           <div style={{
             position: "absolute",
             inset: 0,
-            background: "linear-gradient(135deg, rgba(26, 21, 6, 0.9) 0%, rgba(61, 46, 4, 0.85) 40%, rgba(92, 66, 16, 0.85) 70%, rgba(26, 21, 6, 0.9) 100%)",
+            background: "linear-gradient(135deg, rgba(26, 21, 6, 0.9) 0%, rgba(61, 46, 4, 0.85) 40%, rgb(92 66 16 / 0%) 70%, rgba(26, 21, 6, 0.9) 100%)",
             zIndex: 1,
           }} />
 
