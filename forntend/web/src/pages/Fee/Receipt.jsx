@@ -14,25 +14,25 @@ function formatDate(dateStr) {
 }
 
 const STATUS_COLOR = {
-  Paid:    { bg: "#dcfce7", color: "#15803d", label: "PAID" },
+  Paid: { bg: "#dcfce7", color: "#15803d", label: "PAID" },
   Pending: { bg: "#fff7ed", color: "#c2410c", label: "PENDING" },
   Partial: { bg: "#eff6ff", color: "#1d4ed8", label: "PARTIAL" },
-  Failed:  { bg: "#fee2e2", color: "#dc2626", label: "FAILED" },
+  Failed: { bg: "#fee2e2", color: "#dc2626", label: "FAILED" },
 };
 
 const METHOD_ICON = {
-  Cash:            "fa-money-bill",
+  Cash: "fa-money-bill",
   "Bank Transfer": "fa-building-columns",
-  Card:            "fa-credit-card",
-  JazzCash:        "fa-mobile-screen",
-  EasyPaisa:       "fa-wallet",
+  Card: "fa-credit-card",
+  JazzCash: "fa-mobile-screen",
+  EasyPaisa: "fa-wallet",
 };
 
 /* ─── print styles injected via <style> ──────────────────────────────────── */
 const PRINT_CSS = `
-  @page { size: A4 portrait; margin: 10mm 14mm; }
+  @page { size: A4 portrait; margin: 0; }
   @media print {
-    html, body { height: auto !important; overflow: visible !important; }
+    html, body { height: auto !important; overflow: visible !important; margin: 0 !important; padding: 0 !important; }
     body * { visibility: hidden; }
     .sidebar, .topbar, .hide-on-print { display: none !important; }
     .main { margin: 0 !important; padding: 0 !important; }
@@ -43,9 +43,12 @@ const PRINT_CSS = `
       print-color-adjust: exact !important;
     }
     .receipt-printable {
-      position: fixed !important;
-      left: 0 !important; top: 0 !important;
-      width: 100% !important; height: auto !important;
+      position: absolute !important;
+      left: 14mm !important;
+      top: 10mm !important;
+      right: 14mm !important;
+      width: auto !important;
+      height: auto !important;
       box-shadow: none !important;
       border: none !important;
       margin: 0 !important;
@@ -59,10 +62,10 @@ export default function Receipt() {
   const { id } = useParams();
   const { accessToken } = useAuth();
 
-  const [txn,     setTxn]     = useState(null);
+  const [txn, setTxn] = useState(null);
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error,   setError]   = useState("");
+  const [error, setError] = useState("");
 
   /* fetch transaction → then fetch student */
   const load = useCallback(async () => {
@@ -88,9 +91,9 @@ export default function Receipt() {
   /* ── loading / error states ── */
   if (loading) {
     return (
-      <div className="content" style={{ display:"flex", alignItems:"center", justifyContent:"center", minHeight:400 }}>
-        <div style={{ textAlign:"center", color:"var(--text-soft)" }}>
-          <i className="fa-solid fa-spinner fa-spin" style={{ fontSize:28, marginBottom:14, display:"block" }} />
+      <div className="content" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 400 }}>
+        <div style={{ textAlign: "center", color: "var(--text-soft)" }}>
+          <i className="fa-solid fa-spinner fa-spin" style={{ fontSize: 28, marginBottom: 14, display: "block" }} />
           Loading receipt…
         </div>
       </div>
@@ -103,7 +106,7 @@ export default function Receipt() {
         <div className="alert alert-error">
           <i className="fa-solid fa-circle-exclamation" /> {error}
         </div>
-        <Link to="/fees/records" className="btn btn-outline" style={{ marginTop:14 }}>
+        <Link to="/fees/records" className="btn btn-outline" style={{ marginTop: 14 }}>
           <i className="fa-solid fa-arrow-left" /> Back to Records
         </Link>
       </div>
@@ -111,10 +114,10 @@ export default function Receipt() {
   }
 
   /* ── derived display values ── */
-  const receiptNo    = txn  ? `REC-${pad(txn.id)}`  : "REC-XXXX";
-  const statusStyle  = txn  ? (STATUS_COLOR[txn.status] || { bg:"#f3f4f6", color:"#6b7280", label: txn?.status }) : {};
-  const showAcctNo   = txn  && txn.payment_method !== "Cash" && txn.card_or_account_number;
-  const showCourse   = txn  && txn.fee_type === "Course Fee";
+  const receiptNo = txn ? `REC-${pad(txn.id)}` : "REC-XXXX";
+  const statusStyle = txn ? (STATUS_COLOR[txn.status] || { bg: "#f3f4f6", color: "#6b7280", label: txn?.status }) : {};
+  const showAcctNo = txn && txn.payment_method !== "Cash" && txn.card_or_account_number;
+  const showCourse = txn && txn.fee_type === "Course Fee";
   const amountFormatted = txn
     ? `Rs. ${parseFloat(txn.amount).toLocaleString("en-PK", { minimumFractionDigits: 2 })}`
     : "Rs. —";
@@ -129,7 +132,7 @@ export default function Receipt() {
           <h2>Payment Receipt</h2>
           <p>{id ? `Receipt ${receiptNo}` : "Preview — no transaction loaded"}</p>
         </div>
-        <div style={{ display:"flex", gap:10 }}>
+        <div style={{ display: "flex", gap: 10 }}>
           <Link to="/fees/records" className="btn btn-outline">
             <i className="fa-solid fa-arrow-left" /> Back
           </Link>
@@ -197,65 +200,65 @@ export default function Receipt() {
           <div style={{
             position: "absolute",
             inset: 0,
-            background: "linear-gradient(135deg, rgba(26, 21, 6, 0.9) 0%, rgba(61, 46, 4, 0.85) 40%, rgba(92, 66, 16, 0.85) 70%, rgba(26, 21, 6, 0.9) 100%)",
+            background: "linear-gradient(135deg, rgba(26, 21, 6, 0.9) 0%, rgba(61, 46, 4, 0.85) 40%, rgb(92 66 16 / 0%) 70%, rgba(26, 21, 6, 0.9) 100%)",
             zIndex: 1,
           }} />
 
-          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", position:"relative", zIndex:2 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", position: "relative", zIndex: 2 }}>
             {/* School Identity */}
             <div>
-              <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:10 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 10 }}>
                 <div style={{
-                  width:52, height:52, borderRadius:12,
-                  background:"linear-gradient(135deg,#f97316,#d97706)",
-                  display:"flex", alignItems:"center", justifyContent:"center",
-                  fontSize:24, color:"#fff", flexShrink:0,
-                  boxShadow:"0 4px 12px rgba(249,115,22,.4)",
+                  width: 52, height: 52, borderRadius: 12,
+                  background: "linear-gradient(135deg,#f97316,#d97706)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 24, color: "#fff", flexShrink: 0,
+                  boxShadow: "0 4px 12px rgba(249,115,22,.4)",
                 }}>
                   <i className="fa-solid fa-horse" />
                 </div>
                 <div>
-                  <div style={{ fontSize:22, fontWeight:900, color:"#f6e05e", letterSpacing:"0.04em", textTransform:"uppercase", lineHeight:1.1 }}>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: "#f6e05e", letterSpacing: "0.04em", textTransform: "uppercase", lineHeight: 1.1 }}>
                     Abu Ali
                   </div>
-                  <div style={{ fontSize:20, fontWeight:900, color:"#f6e05e", letterSpacing:"0.04em", textTransform:"uppercase", lineHeight:1.1 }}>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: "#f6e05e", letterSpacing: "0.04em", textTransform: "uppercase", lineHeight: 1.1 }}>
                     Riding School
                   </div>
                 </div>
               </div>
-              <div style={{ fontSize:11.5, color:"rgba(255,255,255,.65)", lineHeight:1.8 }}>
-                <i className="fa-solid fa-location-dot" style={{ marginRight:5, color:"#f97316" }} />
+              <div style={{ fontSize: 11.5, color: "rgba(255,255,255,.65)", lineHeight: 1.8 }}>
+                <i className="fa-solid fa-location-dot" style={{ marginRight: 5, color: "#f97316" }} />
                 Aulakh Awan, Near City Villas, Imtiaz Mall, Sialkot<br />
-                <i className="fa-solid fa-phone" style={{ marginRight:5, color:"#f97316" }} />
+                <i className="fa-solid fa-phone" style={{ marginRight: 5, color: "#f97316" }} />
                 0313-3313131 &nbsp;|&nbsp; 0310-8025673
               </div>
             </div>
 
             {/* Receipt badge */}
-            <div style={{ textAlign:"right" }}>
+            <div style={{ textAlign: "right" }}>
               <div style={{
-                display:"inline-flex", alignItems:"center", gap:8,
-                background:"rgba(255,255,255,.12)", borderRadius:10,
-                padding:"6px 14px", marginBottom:10,
+                display: "inline-flex", alignItems: "center", gap: 8,
+                background: "rgba(255,255,255,.12)", borderRadius: 10,
+                padding: "6px 14px", marginBottom: 10,
               }}>
-                <i className="fa-solid fa-receipt" style={{ color:"#f97316", fontSize:14 }} />
-                <span style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.9)", letterSpacing:"0.08em", textTransform:"uppercase" }}>
+                <i className="fa-solid fa-receipt" style={{ color: "#f97316", fontSize: 14 }} />
+                <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,.9)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
                   Payment Receipt
                 </span>
               </div>
-              <div style={{ fontSize:28, fontWeight:900, color:"#fff", letterSpacing:"2px", lineHeight:1 }}>
+              <div style={{ fontSize: 28, fontWeight: 900, color: "#fff", letterSpacing: "2px", lineHeight: 1 }}>
                 {receiptNo}
               </div>
-              <div style={{ fontSize:12, color:"rgba(255,255,255,.6)", marginTop:6 }}>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,.6)", marginTop: 6 }}>
                 {txn ? formatDate(txn.date) : "—"}
               </div>
               {/* Status badge */}
               {txn && (
                 <div style={{
-                  display:"inline-block", marginTop:10,
-                  padding:"5px 16px", borderRadius:20,
+                  display: "inline-block", marginTop: 10,
+                  padding: "5px 16px", borderRadius: 20,
                   background: statusStyle.bg, color: statusStyle.color,
-                  fontWeight:800, fontSize:12, letterSpacing:"0.06em",
+                  fontWeight: 800, fontSize: 12, letterSpacing: "0.06em",
                 }}>
                   {statusStyle.label}
                 </div>
@@ -265,41 +268,37 @@ export default function Receipt() {
         </div>
 
         {/* ── Orange accent bar ── */}
-        <div style={{ height:4, background:"linear-gradient(90deg,#f97316,#d97706,#f97316)" }} />
+        <div style={{ height: 4, background: "linear-gradient(90deg,#f97316,#d97706,#f97316)" }} />
 
         {/* ───────────────────────────────────────────
             BODY
         ─────────────────────────────────────────── */}
-        <div style={{ padding:"28px 36px" }}>
+        <div style={{ padding: "28px 36px" }}>
 
           {/* ── Section: Student Information ── */}
           <SectionHeading icon="fa-user-graduate" label="Student Information" />
 
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0 36px", marginBottom:24 }}>
-            <ReceiptField label="Full Name"               value={student?.name || txn?.student_name || "—"} />
-            <ReceiptField label="Age"                     value={student ? `${student.age} years` : "—"} />
-            <ReceiptField label="Contact Number"          value={student?.phone_number || "—"} />
-            <ReceiptField label="CNIC Number"             value={student?.cnic || txn?.student_cnic || "—"} />
-            <ReceiptField label="Riding Experience"       value={student?.experience_level || "—"} />
-            <ReceiptField label="Blood Group"             value={student?.blood_group || "—"} />
-            <ReceiptField label="Guardian Name"           value={student?.guardian_name || "—"} />
-            <ReceiptField label="Guardian Contact"        value={student?.guardian_contact || "—"} />
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 36px", marginBottom: 24 }}>
+            <ReceiptField label="Full Name" value={student?.name || txn?.student_name || "—"} />
+            <ReceiptField label="Age" value={student ? `${student.age} years` : "—"} />
+            <ReceiptField label="Contact Number" value={student?.phone_number || "—"} />
+            <ReceiptField label="CNIC Number" value={student?.cnic || txn?.student_cnic || "—"} />
           </div>
 
           {/* ── Section: Payment Details ── */}
           <SectionHeading icon="fa-money-bill-wave" label="Payment Details" />
 
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0 36px", marginBottom:24 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 36px", marginBottom: 24 }}>
             {/* Payment Method */}
-            <div style={{ padding:"10px 0", borderBottom:"1px solid #f0f0f0" }}>
-              <div style={{ fontSize:10.5, color:"#9ca3af", fontWeight:600, textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:4 }}>
+            <div style={{ padding: "10px 0", borderBottom: "1px solid #f0f0f0" }}>
+              <div style={{ fontSize: 10.5, color: "#9ca3af", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 4 }}>
                 Payment Method
               </div>
-              <div style={{ display:"flex", alignItems:"center", gap:8, fontSize:14, fontWeight:600, color:"#1a1f2e" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 600, color: "#1a1f2e" }}>
                 <span style={{
-                  width:28, height:28, borderRadius:8,
-                  background:"#fff7ed", color:"#f97316",
-                  display:"flex", alignItems:"center", justifyContent:"center", fontSize:13,
+                  width: 28, height: 28, borderRadius: 8,
+                  background: "#fff7ed", color: "#f97316",
+                  display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13,
                 }}>
                   <i className={`fa-solid ${METHOD_ICON[txn?.payment_method] || "fa-money-bill"}`} />
                 </span>
@@ -314,11 +313,11 @@ export default function Receipt() {
                 value={txn.card_or_account_number}
               />
             ) : (
-              <div style={{ padding:"10px 0", borderBottom:"1px solid #f0f0f0" }}>
-                <div style={{ fontSize:10.5, color:"#9ca3af", fontWeight:600, textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:4 }}>
+              <div style={{ padding: "10px 0", borderBottom: "1px solid #f0f0f0" }}>
+                <div style={{ fontSize: 10.5, color: "#9ca3af", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 4 }}>
                   Account / Card No.
                 </div>
-                <div style={{ fontSize:13, color:"#9ca3af", fontStyle:"italic" }}>N/A (Cash)</div>
+                <div style={{ fontSize: 13, color: "#9ca3af", fontStyle: "italic" }}>N/A (Cash)</div>
               </div>
             )}
 
@@ -350,27 +349,27 @@ export default function Receipt() {
 
           {/* ── Amount Summary Box ── */}
           <div style={{
-            background:"linear-gradient(135deg,#1a1f2e,#2d3548)",
-            borderRadius:14, padding:"20px 28px",
-            display:"flex", justifyContent:"space-between", alignItems:"center",
-            marginBottom:28,
+            background: "linear-gradient(135deg,#1a1f2e,#2d3548)",
+            borderRadius: 14, padding: "20px 28px",
+            display: "flex", justifyContent: "space-between", alignItems: "center",
+            marginBottom: 28,
           }}>
             <div>
-              <div style={{ fontSize:11.5, color:"rgba(255,255,255,.55)", fontWeight:600, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:4 }}>
+              <div style={{ fontSize: 11.5, color: "rgba(255,255,255,.55)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>
                 Amount Paid
               </div>
-              <div style={{ fontSize:34, fontWeight:900, color:"#f6e05e", lineHeight:1 }}>
+              <div style={{ fontSize: 34, fontWeight: 900, color: "#f6e05e", lineHeight: 1 }}>
                 {amountFormatted}
               </div>
             </div>
-            <div style={{ textAlign:"right" }}>
-              <div style={{ fontSize:11, color:"rgba(255,255,255,.5)", marginBottom:6, textTransform:"uppercase", letterSpacing:"0.06em" }}>
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,.5)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                 Payment Status
               </div>
               <div style={{
-                display:"inline-block", padding:"8px 20px", borderRadius:20,
+                display: "inline-block", padding: "8px 20px", borderRadius: 20,
                 background: statusStyle.bg, color: statusStyle.color,
-                fontWeight:900, fontSize:14, letterSpacing:"0.04em",
+                fontWeight: 900, fontSize: 14, letterSpacing: "0.04em",
               }}>
                 {statusStyle.label || "—"}
               </div>
@@ -378,19 +377,19 @@ export default function Receipt() {
           </div>
 
           {/* ── Signature Section ── */}
-          <SectionHeading icon="fa-signature" label="Signatures" />
+          {/* <SectionHeading icon="fa-signature" label="Signatures" /> */}
 
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0 60px", marginBottom:28, marginTop:8 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 60px", marginBottom: 28, marginTop: 8 }}>
             <div>
-              <div style={{ borderTop:"1.5px solid #1a1f2e", paddingTop:10, marginTop:50 }}>
-                <div style={{ fontSize:12, fontWeight:700, color:"#1a1f2e" }}>Authorised Signature</div>
-                <div style={{ fontSize:11, color:"#9ca3af", marginTop:2 }}>Abu Ali Riding School</div>
+              <div style={{ borderTop: "1.5px solid #1a1f2e", paddingTop: 10, marginTop: 50 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#1a1f2e" }}>Authorised Signature</div>
+                <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 2 }}>Abu Ali Riding School</div>
               </div>
             </div>
             <div>
-              <div style={{ borderTop:"1.5px solid #1a1f2e", paddingTop:10, marginTop:50 }}>
-                <div style={{ fontSize:12, fontWeight:700, color:"#1a1f2e" }}>Applicant's Signature</div>
-                <div style={{ fontSize:11, color:"#9ca3af", marginTop:2 }}>
+              <div style={{ borderTop: "1.5px solid #1a1f2e", paddingTop: 10, marginTop: 50 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#1a1f2e" }}>Applicant's Signature</div>
+                <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 2 }}>
                   {student?.name || txn?.student_name || "Student"}
                 </div>
               </div>
@@ -399,22 +398,21 @@ export default function Receipt() {
 
           {/* ── Disclaimer ── */}
           <div style={{
-            background:"#fffbeb",
-            border:"1px solid #fde68a",
-            borderRadius:10,
-            padding:"14px 18px",
-            marginBottom:24,
+            background: "#fffbeb",
+            border: "1px solid #fde68a",
+            borderRadius: 10,
+            padding: "14px 18px",
+            marginBottom: 24,
           }}>
-            <div style={{ display:"flex", gap:10, alignItems:"flex-start" }}>
-              <i className="fa-solid fa-triangle-exclamation" style={{ color:"#d97706", fontSize:14, marginTop:2, flexShrink:0 }} />
+            <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+              <i className="fa-solid fa-triangle-exclamation" style={{ color: "#d97706", fontSize: 14, marginTop: 2, flexShrink: 0 }} />
               <div>
-                <div style={{ fontSize:11.5, fontWeight:700, color:"#92400e", marginBottom:4, textTransform:"uppercase", letterSpacing:"0.05em" }}>
+                <div style={{ fontSize: 11.5, fontWeight: 700, color: "#92400e", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>
                   Disclaimer / Liability Notice
                 </div>
-                <p style={{ fontSize:11.5, color:"#78350f", lineHeight:1.7, margin:0 }}>
+                <p style={{ fontSize: 11.5, color: "#78350f", lineHeight: 1.7, margin: 0 }}>
                   In case of any injury or accident during riding activities, <strong>Abu Ali Riding School is not responsible</strong>.
-                  Students/guardians participate at their own risk. This receipt serves as a formal record of
-                  payment only and does not constitute insurance or liability coverage. All fees paid are
+                  Students/guardians participate at their own risk. All fees paid are
                   non-refundable unless otherwise agreed in writing by the school management.
                 </p>
               </div>
@@ -422,7 +420,7 @@ export default function Receipt() {
           </div>
 
           {/* ── Footer ── */}
-          <div style={{
+          {/* <div style={{
             borderTop:"1px solid #e5e7eb",
             paddingTop:18,
             display:"flex", justifyContent:"space-between", alignItems:"center",
@@ -441,15 +439,15 @@ export default function Receipt() {
                 Generated: {new Date().toLocaleDateString("en-PK", { day:"2-digit", month:"short", year:"numeric" })}
               </div>
             </div>
-          </div>
+          </div> */}
 
         </div>{/* end body */}
       </div>{/* end receipt card */}
 
       {/* ── Bottom action bar (hidden on print) ── */}
       <div className="hide-on-print" style={{
-        maxWidth:760, margin:"18px auto 0",
-        display:"flex", justifyContent:"center", gap:12,
+        maxWidth: 760, margin: "18px auto 0",
+        display: "flex", justifyContent: "center", gap: 12,
       }}>
         <Link to="/fees/records" className="btn btn-outline">
           <i className="fa-solid fa-arrow-left" /> Back to Records
@@ -459,7 +457,7 @@ export default function Receipt() {
         </button>
         <button
           className="btn btn-outline"
-          style={{ borderColor:"#d97706", color:"#d97706" }}
+          style={{ borderColor: "#d97706", color: "#d97706" }}
           onClick={handlePrint}
           title="Print then choose 'Save as PDF' in the print dialog"
         >
@@ -475,19 +473,19 @@ export default function Receipt() {
 function SectionHeading({ icon, label }) {
   return (
     <div style={{
-      display:"flex", alignItems:"center", gap:10,
-      marginBottom:14, paddingBottom:10,
-      borderBottom:"2px solid #f0f0f0",
+      display: "flex", alignItems: "center", gap: 10,
+      marginBottom: 14, paddingBottom: 10,
+      borderBottom: "2px solid #f0f0f0",
     }}>
       <div style={{
-        width:30, height:30, borderRadius:8,
-        background:"linear-gradient(135deg,#f97316,#d97706)",
-        display:"flex", alignItems:"center", justifyContent:"center",
-        color:"#fff", fontSize:13,
+        width: 30, height: 30, borderRadius: 8,
+        background: "linear-gradient(135deg,#f97316,#d97706)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        color: "#fff", fontSize: 13,
       }}>
         <i className={`fa-solid ${icon}`} />
       </div>
-      <span style={{ fontSize:13, fontWeight:700, color:"#1a1f2e", textTransform:"uppercase", letterSpacing:"0.06em" }}>
+      <span style={{ fontSize: 13, fontWeight: 700, color: "#1a1f2e", textTransform: "uppercase", letterSpacing: "0.06em" }}>
         {label}
       </span>
     </div>
@@ -496,21 +494,21 @@ function SectionHeading({ icon, label }) {
 
 function ReceiptField({ label, value, pill, pillColor, pillText, muted }) {
   return (
-    <div style={{ padding:"10px 0", borderBottom:"1px solid #f0f0f0" }}>
-      <div style={{ fontSize:10.5, color:"#9ca3af", fontWeight:600, textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:4 }}>
+    <div style={{ padding: "10px 0", borderBottom: "1px solid #f0f0f0" }}>
+      <div style={{ fontSize: 10.5, color: "#9ca3af", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 4 }}>
         {label}
       </div>
       {pill ? (
         <span style={{
-          display:"inline-flex", alignItems:"center", gap:4,
-          padding:"3px 12px", borderRadius:20,
+          display: "inline-flex", alignItems: "center", gap: 4,
+          padding: "3px 12px", borderRadius: 20,
           background: pillColor, color: pillText,
-          fontSize:12.5, fontWeight:700,
+          fontSize: 12.5, fontWeight: 700,
         }}>
           {value}
         </span>
       ) : (
-        <div style={{ fontSize:13.5, fontWeight:muted ? 400 : 600, color: muted ? "#9ca3af" : "#1a1f2e" }}>
+        <div style={{ fontSize: 13.5, fontWeight: muted ? 400 : 600, color: muted ? "#9ca3af" : "#1a1f2e" }}>
           {value || "—"}
         </div>
       )}
