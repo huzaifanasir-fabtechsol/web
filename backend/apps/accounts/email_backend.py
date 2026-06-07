@@ -16,6 +16,10 @@ class DynamicSMTPBackend(EmailBackend):
     """
 
     def __init__(self, fail_silently=False, **kwargs):
+        # Pop override parameters from kwargs to prevent TypeError when passed to super().__init__
+        for key in ["host", "port", "username", "password", "use_tls", "use_ssl"]:
+            kwargs.pop(key, None)
+
         try:
             from .models import SystemSettings
             sys_cfg = SystemSettings.get_settings()
