@@ -16,13 +16,13 @@ export default function ResetPassword() {
   const [confirmErr, setConfirmErr] = useState("");
 
   const validatePw = (val) => {
-    if (!val) { setPwErr("Password is required."); return false; }
+    if (!val) { setPwErr("This field is required."); return false; }
     if (val.length < 8) { setPwErr("Minimum 8 characters."); return false; }
     setPwErr(""); return true;
   };
 
   const validateConfirm = (val) => {
-    if (!val) { setConfirmErr("Please confirm your password."); return false; }
+    if (!val) { setConfirmErr("This field is required."); return false; }
     if (val !== password) { setConfirmErr("Passwords do not match."); return false; }
     setConfirmErr(""); return true;
   };
@@ -51,147 +51,308 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="page" style={{ display: 'flex', minHeight: '100vh', position: 'relative' }}>
+    <div className="login-container-new">
       <style>{`
-        .left-panel::before {
-          content: ''; position: absolute; inset: 0;
-          background-image: radial-gradient(rgba(255,255,255,.15) 1px, transparent 1px);
-          background-size: 28px 28px; pointer-events: none;
+        .login-container-new {
+          min-height: 100vh;
+          width: 100%;
+          background: url('/login-bg.png') no-repeat center center;
+          background-size: cover;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-family: 'Inter', system-ui, -apple-system, sans-serif;
+          padding: 20px;
+          box-sizing: border-box;
+          position: relative;
         }
+        
+        .login-container-new::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.4);
+          z-index: 1;
+        }
+        
+        .login-card-new {
+          background: #ffffff;
+          border-radius: 4px;
+          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+          width: 100%;
+          max-width: 410px;
+          padding: 40px 35px 30px;
+          box-sizing: border-box;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          z-index: 10;
+          position: relative;
+        }
+
+        .login-logo-container {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 25px;
+        }
+
+        .logo-symbol {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 26px;
+          color: #d9534f;
+          margin-right: 8px;
+        }
+
+        .logo-text {
+          font-size: 32px;
+          font-weight: 800;
+          color: #1a252f;
+          letter-spacing: -0.5px;
+        }
+
+        .logo-dot {
+          color: #d9534f;
+        }
+
+        .login-title-new {
+          font-size: 13px;
+          font-weight: 700;
+          color: #7f8c8d;
+          text-transform: uppercase;
+          letter-spacing: 1.5px;
+          margin-bottom: 25px;
+          text-align: center;
+        }
+
+        .form-new {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .input-group-new {
+          position: relative;
+          margin-bottom: 22px;
+          width: 100%;
+        }
+
+        .input-new {
+          width: 100%;
+          height: 44px;
+          padding: 10px 15px;
+          border: 1px solid #d1d5db;
+          border-radius: 4px;
+          font-size: 14px;
+          color: #333333;
+          box-sizing: border-box;
+          outline: none;
+          transition: border-color 0.2s;
+        }
+
+        .input-new:focus {
+          border-color: #3498db;
+        }
+
+        .input-new.is-error {
+          border-color: #d9534f;
+          background-color: #fff9f9;
+        }
+
+        /* Error Badge styling to match mockup */
+        .error-badge {
+          position: absolute;
+          left: calc(100% + 12px);
+          top: 50%;
+          transform: translateY(-50%);
+          background-color: #d9534f;
+          color: #ffffff;
+          padding: 6px 12px;
+          border-radius: 4px;
+          font-size: 12px;
+          font-weight: 600;
+          white-space: nowrap;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+          z-index: 100;
+          display: flex;
+          align-items: center;
+        }
+
+        .error-badge::before {
+          content: '';
+          position: absolute;
+          right: 100%;
+          top: 50%;
+          transform: translateY(-50%);
+          border-width: 6px;
+          border-style: solid;
+          border-color: transparent #d9534f transparent transparent;
+        }
+
+        .btn-submit-new {
+          width: 100%;
+          height: 44px;
+          background-color: #5191c1;
+          color: #ffffff;
+          border: none;
+          border-radius: 4px;
+          font-size: 15px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: background-color 0.2s;
+          margin-top: 5px;
+          margin-bottom: 20px;
+          outline: none;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+        }
+
+        .btn-submit-new:hover {
+          background-color: #417ba8;
+        }
+
+        .btn-submit-new:disabled {
+          background-color: #a0c2dc;
+          cursor: not-allowed;
+        }
+
+        .link-forgot-new {
+          color: #5191c1;
+          text-decoration: none;
+          font-size: 13px;
+          font-weight: 600;
+          text-align: center;
+          margin-top: 15px;
+          display: block;
+        }
+
+        .link-forgot-new:hover {
+          text-decoration: underline;
+        }
+
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Responsive adjustments for error badges on small screens */
+        @media (max-width: 768px) {
+          .error-badge {
+            position: static;
+            transform: none;
+            left: auto;
+            top: auto;
+            margin-top: 5px;
+            white-space: normal;
+          }
+          .error-badge::before {
+            display: none;
+          }
+        }
       `}</style>
 
-      {/* LEFT PANEL */}
-      <div className="left-panel" style={{ width: '44%', minHeight: '100vh', background: 'linear-gradient(180deg, #f97316 0%, #ea6c0a 60%, #c2550a 100%)', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '52px 36px' }}>
-        <div className="blob blob-1" style={{ position: 'absolute', borderRadius: '50%', pointerEvents: 'none', width: 280, height: 280, background: 'rgba(255,255,255,.10)', top: -70, left: -70 }}></div>
-        <div className="blob blob-2" style={{ position: 'absolute', borderRadius: '50%', pointerEvents: 'none', width: 200, height: 200, background: 'rgba(0,0,0,.08)', bottom: -50, right: 10 }}></div>
-
-        <div className="brand-content" style={{ position: 'relative', zIndex: 2, textAlign: 'center', width: '100%' }}>
-          <div className="brand-logo-wrap" style={{ width: 88, height: 88, background: 'var(--active)', borderRadius: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', boxShadow: '0 8px 28px rgba(0,0,0,.28)' }}>
-            <i className="fa-solid fa-key" style={{ fontSize: 38, color: 'var(--accent1)' }}></i>
+      <div className="login-card-new">
+        
+        {/* Logo */}
+        <div className="login-logo-container">
+          <div className="logo-symbol">
+            <i className="fa-solid fa-key"></i>
           </div>
-          <div className="brand-name" style={{ fontSize: 28, fontWeight: 800, color: '#fff', letterSpacing: '-.3px', lineHeight: 1.2, marginBottom: 4 }}>Set New Password</div>
-          <p className="brand-tagline" style={{ fontSize: 13.5, fontWeight: 400, color: 'rgba(255,255,255,.72)', lineHeight: 1.7, maxWidth: 260, margin: '16px auto 0' }}>
-            Choose a strong password to protect your account.
-          </p>
+          <div className="logo-text">
+            RESET<span className="logo-dot">.</span>
+          </div>
         </div>
-        <div className="left-footer" style={{ position: 'absolute', bottom: 20, left: 0, right: 0, zIndex: 2, textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,.35)' }}>© 2026 HRS Management System</div>
-      </div>
 
-      {/* CLOUD BORDER */}
-      <svg className="cloud-svg" viewBox="0 0 88 600" preserveAspectRatio="none" style={{ position: 'absolute', left: '44%', top: 0, height: '100%', width: 88, zIndex: 10, display: 'block', overflow: 'visible' }}>
-        <defs>
-          <linearGradient id="og" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#f97316"/>
-            <stop offset="60%" stopColor="#ea6c0a"/>
-            <stop offset="100%" stopColor="#c2550a"/>
-          </linearGradient>
-        </defs>
-        <path d="M 0,0 L 0,600 C 88,600 88,400 0,400 C 88,400 88,200 0,200 C 88,200 88,0 0,0 Z" fill="url(#og)"/>
-      </svg>
+        <div className="login-title-new">Reset Password</div>
 
-      {/* RIGHT PANEL */}
-      <div className="right-panel" style={{ flex: 1, background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 40px 40px 60px', position: 'relative', overflow: 'hidden' }}>
-        <div className="deco-circle dc-1" style={{ position: 'absolute', borderRadius: '50%', pointerEvents: 'none', width: 260, height: 260, background: 'rgba(249,115,22,.07)', bottom: -80, right: -80 }}></div>
+        {/* Invalid link guard */}
+        {!isLinkValid && (
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 9, padding: '14px', borderRadius: 4, fontSize: 13, fontWeight: 500, marginBottom: 18, lineHeight: 1.55, background: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca', boxSizing: 'border-box', width: '100%' }}>
+            <i className="fa-solid fa-triangle-exclamation" style={{ fontSize: 14, marginTop: 1, flexShrink: 0 }}></i>
+            <span>This reset link is invalid or has expired. Please <Link to="/forgot-password" style={{ color: '#b91c1c', fontWeight: 700 }}>request a new one</Link>.</span>
+          </div>
+        )}
 
-        <div className="login-card" style={{ width: '100%', maxWidth: 380, zIndex: 2 }}>
-          <p className="card-role" style={{ fontSize: 32, fontWeight: 800, letterSpacing: '-.5px', color: 'var(--text-dark)', marginBottom: 8, lineHeight: 1.1 }}>Reset Password</p>
-          <p className="card-sub" style={{ fontSize: 13, color: 'var(--text-soft)', marginBottom: 24 }}>Enter your new password below.</p>
+        {/* Success state */}
+        {isSuccess && (
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 9, padding: '14px', borderRadius: 4, fontSize: 13, fontWeight: 500, marginBottom: 18, lineHeight: 1.55, background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', boxSizing: 'border-box', width: '100%' }}>
+            <i className="fa-solid fa-circle-check" style={{ fontSize: 14, marginTop: 1, flexShrink: 0 }}></i>
+            <span>Password updated successfully! Redirecting to login…</span>
+          </div>
+        )}
 
-          {/* Invalid link guard */}
-          {!isLinkValid && (
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 9, padding: '14px', borderRadius: 10, fontSize: 13, fontWeight: 500, marginBottom: 18, lineHeight: 1.55, background: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca' }}>
-              <i className="fa-solid fa-triangle-exclamation" style={{ fontSize: 14, marginTop: 1, flexShrink: 0 }}></i>
-              <span>This reset link is invalid or has expired. Please <Link to="/forgot-password" style={{ color: '#b91c1c', fontWeight: 700 }}>request a new one</Link>.</span>
-            </div>
-          )}
+        {/* Error alert */}
+        {alertMsg && !isSuccess && (
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 9, padding: '11px 14px', borderRadius: 4, fontSize: 13, fontWeight: 500, marginBottom: 18, lineHeight: 1.45, background: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca', boxSizing: 'border-box', width: '100%' }}>
+            <i className="fa-solid fa-circle-exclamation" style={{ fontSize: 13, marginTop: 1, flexShrink: 0 }}></i>
+            <span>{alertMsg}</span>
+          </div>
+        )}
 
-          {/* Success state */}
-          {isSuccess && (
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 9, padding: '14px', borderRadius: 10, fontSize: 13, fontWeight: 500, marginBottom: 18, lineHeight: 1.55, background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0' }}>
-              <i className="fa-solid fa-circle-check" style={{ fontSize: 14, marginTop: 1, flexShrink: 0 }}></i>
-              <span>Password updated successfully! Redirecting to login…</span>
-            </div>
-          )}
-
-          {/* Error alert */}
-          {alertMsg && !isSuccess && (
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 9, padding: '11px 14px', borderRadius: 10, fontSize: 13, fontWeight: 500, marginBottom: 18, lineHeight: 1.45, background: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca' }}>
-              <i className="fa-solid fa-circle-exclamation" style={{ fontSize: 13, marginTop: 1, flexShrink: 0 }}></i>
-              <span>{alertMsg}</span>
-            </div>
-          )}
-
-          {isLinkValid && !isSuccess && (
-            <form onSubmit={handleSubmit}>
-              {/* New Password */}
-              <div className="form-group" style={{ marginBottom: 18 }}>
-                <label className="form-label" style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: 'var(--text-dark)', marginBottom: 7 }}>New Password</label>
-                <div className="input-wrap" style={{ position: 'relative' }}>
-                  <i className="fa-solid fa-lock input-icon" style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', fontSize: 14, color: 'var(--text-soft)', pointerEvents: 'none' }}></i>
-                  <input
-                    id="reset-password"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => { setPassword(e.target.value); if (pwErr) validatePw(e.target.value); }}
-                    onBlur={(e) => validatePw(e.target.value)}
-                    placeholder="••••••••••••"
-                    style={{ width: '100%', height: 47, padding: '0 42px 0 40px', border: `1.5px solid ${pwErr ? '#ef4444' : 'var(--border)'}`, borderRadius: 10, fontSize: 13.5, fontFamily: 'Inter', color: 'var(--text-dark)', background: 'var(--bg)', outline: 'none' }}
-                  />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: 11, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-soft)', fontSize: 14, padding: 5, borderRadius: 6 }}>
-                    <i className={`fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
-                  </button>
-                </div>
-                {pwErr && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11.5, fontWeight: 500, color: '#ef4444', marginTop: 5 }}>
-                    <i className="fa-solid fa-circle-exclamation" style={{ fontSize: 10 }}></i>
-                    <span>{pwErr}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Confirm Password */}
-              <div className="form-group" style={{ marginBottom: 24 }}>
-                <label className="form-label" style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: 'var(--text-dark)', marginBottom: 7 }}>Confirm Password</label>
-                <div className="input-wrap" style={{ position: 'relative' }}>
-                  <i className="fa-solid fa-check-circle input-icon" style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', fontSize: 14, color: 'var(--text-soft)', pointerEvents: 'none' }}></i>
-                  <input
-                    id="reset-confirm-password"
-                    type={showPassword ? "text" : "password"}
-                    value={confirmPassword}
-                    onChange={(e) => { setConfirmPassword(e.target.value); if (confirmErr) validateConfirm(e.target.value); }}
-                    onBlur={(e) => validateConfirm(e.target.value)}
-                    placeholder="••••••••••••"
-                    style={{ width: '100%', height: 47, padding: '0 42px 0 40px', border: `1.5px solid ${confirmErr ? '#ef4444' : 'var(--border)'}`, borderRadius: 10, fontSize: 13.5, fontFamily: 'Inter', color: 'var(--text-dark)', background: 'var(--bg)', outline: 'none' }}
-                  />
-                </div>
-                {confirmErr && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11.5, fontWeight: 500, color: '#ef4444', marginTop: 5 }}>
-                    <i className="fa-solid fa-circle-exclamation" style={{ fontSize: 10 }}></i>
-                    <span>{confirmErr}</span>
-                  </div>
-                )}
-              </div>
-
-              <button
-                type="submit"
-                id="reset-submit"
-                disabled={isLoading}
-                style={{ width: '100%', height: 47, background: 'var(--active)', color: '#fff', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, fontFamily: 'Inter', cursor: isLoading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: isLoading ? 0.65 : 1 }}
-              >
-                {isLoading && <div style={{ width: 18, height: 18, border: '2.5px solid rgba(255,255,255,.28)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin .6s linear infinite' }}></div>}
-                {!isLoading && <span>Update Password</span>}
-                {isLoading && <span>Updating…</span>}
+        {isLinkValid && !isSuccess && (
+          <form onSubmit={handleSubmit} className="form-new" noValidate>
+            {/* New Password */}
+            <div className="input-group-new">
+              <input
+                id="reset-password"
+                className={`input-new ${pwErr ? 'is-error' : ''}`}
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => { setPassword(e.target.value); if (pwErr) validatePw(e.target.value); }}
+                onBlur={(e) => validatePw(e.target.value)}
+                placeholder="New Password"
+              />
+              <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: 11, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#7f8c8d', fontSize: 14, padding: 5, borderRadius: 6 }}>
+                <i className={`fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
               </button>
-            </form>
-          )}
+              {pwErr && (
+                <div className="error-badge">
+                  {pwErr}
+                </div>
+              )}
+            </div>
 
-          {!isLinkValid && (
-            <Link to="/forgot-password" style={{ display: 'block', textAlign: 'center', marginTop: 16, fontSize: 13, fontWeight: 600, color: 'var(--accent1)', textDecoration: 'none' }}>
-              Request a new link →
-            </Link>
-          )}
-        </div>
+            {/* Confirm Password */}
+            <div className="input-group-new" style={{ marginBottom: 25 }}>
+              <input
+                id="reset-confirm-password"
+                className={`input-new ${confirmErr ? 'is-error' : ''}`}
+                type={showPassword ? "text" : "password"}
+                value={confirmPassword}
+                onChange={(e) => { setConfirmPassword(e.target.value); if (confirmErr) validateConfirm(e.target.value); }}
+                onBlur={(e) => validateConfirm(e.target.value)}
+                placeholder="Confirm Password"
+              />
+              {confirmErr && (
+                <div className="error-badge">
+                  {confirmErr}
+                </div>
+              )}
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              id="reset-submit"
+              className="btn-submit-new"
+              disabled={isLoading}
+            >
+              {isLoading && (
+                <div style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,.28)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin .6s linear infinite' }}></div>
+              )}
+              {isLoading ? 'Updating...' : 'Update Password'}
+            </button>
+          </form>
+        )}
+
+        {/* Links */}
+        {!isLinkValid ? (
+          <Link to="/forgot-password" className="link-forgot-new">Request a new link →</Link>
+        ) : (
+          <Link to="/login" className="link-forgot-new">Back to Login</Link>
+        )}
+
       </div>
     </div>
   );
