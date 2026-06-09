@@ -378,17 +378,17 @@ export default function ForgotPassword() {
       {/* Left panel: Info & brand representation */}
       <div className="login-info-section">
         <div className="info-center-content">
-          <div className="info-horse-svg">
-            <svg viewBox="0 0 120 120" fill="none" stroke="#002F24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              {/* Stylized horse outline facing left */}
-              <path d="M75,95 C75,80 78,55 70,40 C66,32 58,25 58,18 C58,15 62,12 65,15 C68,18 70,25 70,30" />
+          {/* <div className="info-horse-svg">
+            <svg viewBox="0 0 120 120" fill="none" stroke="#002F24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"> */}
+          {/* Stylized horse outline facing left */}
+          {/* <path d="M75,95 C75,80 78,55 70,40 C66,32 58,25 58,18 C58,15 62,12 65,15 C68,18 70,25 70,30" />
               <path d="M58,18 C54,14 48,15 48,22 C48,25 50,30 52,32" />
               <path d="M53,24 C50,20 44,21 44,28 C44,31 46,36 48,38" />
               <path d="M52,32 C48,35 40,40 38,48 C36,55 35,62 30,68 C26,72 20,74 24,78 C28,82 35,80 39,76 C43,72 45,65 48,60" />
               <path d="M48,60 C50,65 52,70 56,73 C60,76 66,75 70,70 M30,68 L32,71" />
               <path d="M 32,88 C 50,95 70,95 88,88" stroke="#C5A880" strokeWidth="1.8" />
             </svg>
-          </div>
+          </div> */}
 
           {/* <h1 className="info-main-title">Ride. Learn. Grow.</h1>
           <p className="info-sub-title">Empowering riders of all levels with passion and care.</p>
