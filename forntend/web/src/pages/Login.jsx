@@ -79,80 +79,189 @@ export default function Login() {
     }
   };
 
+
+
   return (
-    <div className="login-container-new">
+    <div className="login-page-container">
       <style>{`
-        .login-container-new {
+        .login-page-container {
           min-height: 100vh;
           width: 100%;
-          background: url('/login-bg.png') no-repeat center center;
+          background: url('/BG.png') no-repeat center center;
           background-size: cover;
           display: flex;
-          align-items: center;
-          justify-content: center;
           font-family: 'Inter', system-ui, -apple-system, sans-serif;
-          padding: 20px;
           box-sizing: border-box;
           position: relative;
+          overflow-x: hidden;
         }
-        
-        .login-container-new::before {
+
+        /* Ambient background overlay to match preview image styling */
+        .login-page-container::before {
           content: '';
           position: absolute;
           inset: 0;
-          background: rgba(0, 0, 0, 0.4);
+          background: rgba(255, 255, 255, 0.1);
           z-index: 1;
         }
-        
-        .login-card-new {
-          background: #ffffff;
-          border-radius: 4px;
-          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-          width: 100%;
-          max-width: 410px;
-          padding: 40px 35px 30px;
-          box-sizing: border-box;
+
+        .login-info-section {
+          flex: 1.25;
           display: flex;
           flex-direction: column;
+          justify-content: space-between;
           align-items: center;
+          padding: 60px 40px;
           z-index: 10;
           position: relative;
         }
 
-        .login-logo-container {
+        .info-center-content {
+          margin-top: auto;
+          margin-bottom: auto;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+        }
+
+        .info-horse-svg {
+          width: 130px;
+          height: 130px;
           display: flex;
           align-items: center;
           justify-content: center;
-          margin-bottom: 25px;
+          margin-bottom: 20px;
         }
 
-        .logo-symbol {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 26px;
-          color: #d9534f;
-          margin-right: 8px;
+        .info-horse-svg svg {
+          width: 100%;
+          height: 100%;
         }
 
-        .logo-text {
-          font-size: 32px;
-          font-weight: 800;
-          color: #1a252f;
+        .info-main-title {
+          font-family: 'Playfair Display', serif;
+          font-size: 46px;
+          font-weight: 700;
+          color: #002F24;
+          margin: 12px 0 6px;
           letter-spacing: -0.5px;
         }
 
-        .logo-dot {
-          color: #d9534f;
+        .info-sub-title {
+          font-size: 15px;
+          font-weight: 500;
+          color: #002F24;
+          max-width: 320px;
+          line-height: 1.5;
+          margin: 0 0 25px;
+          opacity: 0.9;
         }
 
-        .login-title-new {
-          font-size: 13px;
+        .info-gold-divider {
+          width: 55px;
+          height: 2px;
+          background-color: #C5A880;
+          border-radius: 2px;
+        }
+
+        .info-badges-row {
+          display: flex;
+          justify-content: center;
+          gap: 35px;
+          width: 100%;
+          margin-top: auto;
+        }
+
+        .info-badge-item {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 12px;
+          width: 110px;
+        }
+
+        .badge-icon-circle {
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          border: 1px solid rgba(0, 47, 36, 0.25);
+          background: rgba(255, 255, 255, 0.2);
+          backdrop-filter: blur(4px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 18px;
+          color: #002F24;
+          transition: all 0.3s ease;
+        }
+
+        .info-badge-item:hover .badge-icon-circle {
+          background: rgba(255, 255, 255, 0.45);
+          border-color: #002F24;
+          transform: translateY(-3px);
+        }
+
+        .badge-text {
+          font-size: 11px;
           font-weight: 700;
-          color: #7f8c8d;
+          color: #002F24;
+          text-align: center;
           text-transform: uppercase;
-          letter-spacing: 1.5px;
+          letter-spacing: 0.5px;
+          line-height: 1.3;
+        }
+
+        .login-form-section {
+          flex: 0.95;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 40px 60px 40px 20px;
+          z-index: 10;
+          position: relative;
+        }
+
+        .login-card-new {
+          background: #ffffff;
+          border-radius: 36px;
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+          width: 100%;
+          max-width: 480px;
+          padding: 45px 40px;
+          box-sizing: border-box;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          position: relative;
+        }
+
+        .school-logo-container {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
           margin-bottom: 25px;
+          width: 100%;
+        }
+
+        .school-logo {
+          height: 100px;
+          object-fit: contain;
+        }
+
+        .welcome-title {
+          font-family: 'Playfair Display', serif;
+          font-size: 34px;
+          font-weight: 700;
+          color: #002F24;
+          margin-bottom: 8px;
+          text-align: center;
+        }
+
+        .welcome-subtitle {
+          font-size: 14px;
+          color: #64748b;
+          margin-bottom: 28px;
           text-align: center;
         }
 
@@ -163,218 +272,246 @@ export default function Login() {
         }
 
         .input-group-new {
-          position: relative;
-          margin-bottom: 22px;
+          margin-bottom: 20px;
           width: 100%;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .form-label {
+          font-size: 12.5px;
+          font-weight: 700;
+          color: #1e293b;
+          margin-bottom: 8px;
+          text-align: left;
+        }
+
+        .input-container-inner {
+          position: relative;
+          width: 100%;
+        }
+
+        .input-icon-left {
+          position: absolute;
+          left: 16px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #94a3b8;
+          font-size: 15px;
         }
 
         .input-new {
           width: 100%;
-          height: 44px;
-          padding: 10px 15px;
-          border: 1px solid #d1d5db;
-          border-radius: 4px;
+          height: 52px;
+          padding: 10px 16px 10px 46px;
+          border: 1px solid #cbd5e1;
+          border-radius: 12px;
           font-size: 14px;
-          color: #333333;
+          color: #0f172a;
+          background-color: #ffffff;
           box-sizing: border-box;
           outline: none;
-          transition: border-color 0.2s;
+          transition: all 0.2s ease;
+        }
+
+        .input-new::placeholder {
+          color: #94a3b8;
         }
 
         .input-new:focus {
-          border-color: #3498db;
+          border-color: #002F24;
+          box-shadow: 0 0 0 3px rgba(0, 47, 36, 0.08);
         }
 
         .input-new.is-error {
-          border-color: #d9534f;
-          background-color: #fff9f9;
+          border-color: #ef4444;
+          background-color: #fef2f2;
         }
 
-        /* Error Badge styling to match mockup */
-        .error-badge {
+        .pw-toggle {
           position: absolute;
-          left: calc(100% + 12px);
+          right: 16px;
           top: 50%;
           transform: translateY(-50%);
-          background-color: #d9534f;
-          color: #ffffff;
-          padding: 6px 12px;
-          border-radius: 4px;
+          background: none;
+          border: none;
+          cursor: pointer;
+          color: #94a3b8;
+          font-size: 14px;
+          padding: 4px;
+        }
+
+        .pw-toggle:hover {
+          color: #64748b;
+        }
+
+        .error-message {
+          color: #ef4444;
           font-size: 12px;
-          font-weight: 600;
-          white-space: nowrap;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-          z-index: 100;
+          margin-top: 6px;
+          font-weight: 500;
           display: flex;
           align-items: center;
+          gap: 6px;
+          text-align: left;
         }
 
-        .error-badge::before {
-          content: '';
-          position: absolute;
-          right: 100%;
-          top: 50%;
-          transform: translateY(-50%);
-          border-width: 6px;
-          border-style: solid;
-          border-color: transparent #d9534f transparent transparent;
-        }
-
-        .btn-submit-new {
+        .form-actions-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-top: 8px;
+          margin-bottom: 24px;
           width: 100%;
-          height: 44px;
-          background-color: #5191c1;
+        }
+
+        .remember-me-label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          cursor: pointer;
+          user-select: none;
+        }
+
+        .remember-checkbox-custom {
+          width: 18px;
+          height: 18px;
+          border-radius: 6px;
+          border: 1.5px solid #cbd5e1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+          background: #ffffff;
+          box-sizing: border-box;
+        }
+
+        .remember-checkbox-custom.checked {
+          background-color: #002F24;
+          border-color: #002F24;
+        }
+
+        .remember-checkbox-custom i {
+          font-size: 10px;
+          color: #ffffff;
+        }
+
+        .remember-me-text {
+          font-size: 13.5px;
+          color: #475569;
+          font-weight: 500;
+        }
+
+        .forgot-password-link {
+          font-size: 13.5px;
+          font-weight: 600;
+          color: #002F24;
+          text-decoration: underline;
+          transition: opacity 0.2s;
+        }
+
+        .forgot-password-link:hover {
+          opacity: 0.8;
+        }
+
+        .btn-signin {
+          width: 100%;
+          height: 52px;
+          background-color: #002F24;
           color: #ffffff;
           border: none;
-          border-radius: 4px;
+          border-radius: 12px;
           font-size: 15px;
           font-weight: 700;
           cursor: pointer;
-          transition: background-color 0.2s;
-          margin-top: 5px;
-          margin-bottom: 20px;
-          outline: none;
+          transition: all 0.2s ease;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 8px;
+          gap: 10px;
+          margin-bottom: 22px;
         }
 
-        .btn-submit-new:hover {
-          background-color: #417ba8;
+        .btn-signin:hover {
+          background-color: #004838;
         }
 
-        .btn-submit-new:disabled {
-          background-color: #a0c2dc;
+        .btn-signin:disabled {
+          background-color: #94a3b8;
           cursor: not-allowed;
         }
 
-        .link-forgot-new {
-          color: #5191c1;
-          text-decoration: none;
+        .btn-signin i {
           font-size: 13px;
-          font-weight: 600;
-          text-align: center;
-          margin-bottom: 25px;
-          display: block;
+          transition: transform 0.2s ease;
         }
 
-        .link-forgot-new:hover {
-          text-decoration: underline;
+        .btn-signin:hover:not(:disabled) i {
+          transform: translateX(3px);
         }
 
-        .register-text-new {
-          font-size: 12.5px;
-          color: #555555;
-          text-align: center;
-          line-height: 1.5;
-          margin-bottom: 30px;
-          border-top: 1px solid #eeeeee;
-          padding-top: 20px;
-          width: 100%;
-        }
-
-        .register-link-new {
-          color: #5191c1;
-          text-decoration: none;
-          font-weight: 600;
-        }
-
-        .register-link-new:hover {
-          text-decoration: underline;
-        }
-
-        .connect-header-new {
-          font-size: 11px;
-          font-weight: 700;
-          color: #34495e;
-          margin-bottom: 15px;
-          text-transform: uppercase;
-          letter-spacing: 1px;
-          text-align: center;
-          width: 100%;
-        }
-
-        .social-row-new {
+        .or-divider {
           display: flex;
+          align-items: center;
+          width: 100%;
+          margin-bottom: 22px;
+        }
+
+        .or-line {
+          flex: 1;
+          height: 1px;
+          background-color: #e2e8f0;
+        }
+
+        .or-text {
+          padding: 0 16px;
+          font-size: 13px;
+          color: #94a3b8;
+          font-weight: 500;
+        }
+
+        .btn-google {
+          width: 100%;
+          height: 52px;
+          background-color: #ffffff;
+          border: 1px solid #cbd5e1;
+          border-radius: 12px;
+          font-size: 14.5px;
+          font-weight: 600;
+          color: #334155;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
           justify-content: center;
           gap: 12px;
-          margin-bottom: 35px;
-          width: 100%;
-        }
-
-        .social-circle-new {
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          background-color: #3b5998; /* Facebook default */
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #ffffff;
-          font-size: 14px;
-          text-decoration: none;
-          transition: transform 0.2s, opacity 0.2s;
-        }
-
-        .social-circle-new:hover {
-          transform: scale(1.1);
-          opacity: 0.9;
-        }
-
-        .social-circle-new.fb { background-color: #3b5998; }
-        .social-circle-new.tw { background-color: #1da1f2; }
-        .social-circle-new.ln { background-color: #0077b5; }
-        .social-circle-new.ig { background-color: #e1306c; }
-
-        .app-downloads-new {
-          display: flex;
-          justify-content: center;
-          gap: 10px;
-          width: 100%;
-          border-top: 1px solid #eeeeee;
-          padding-top: 25px;
-        }
-
-        .app-btn-new {
-          display: flex;
-          align-items: center;
-          background-color: #111111;
-          color: #ffffff;
-          border-radius: 4px;
-          padding: 6px 14px;
-          text-decoration: none;
-          min-width: 115px;
-          box-sizing: border-box;
           transition: background-color 0.2s;
+          margin-bottom: 28px;
         }
 
-        .app-btn-new:hover {
-          background-color: #2a2a2a;
+        .btn-google:hover {
+          background-color: #f8fafc;
         }
 
-        .app-icon-new {
-          font-size: 20px;
-          margin-right: 8px;
+        .google-icon {
+          width: 18px;
+          height: 18px;
         }
 
-        .app-btn-text-new {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-          line-height: 1.1;
+        .signup-prompt {
+          font-size: 13.5px;
+          color: #64748b;
+          text-align: center;
         }
 
-        .app-sub-text-new {
-          font-size: 8px;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          color: #aaaaaa;
-        }
-
-        .app-main-text-new {
-          font-size: 11px;
+        .signup-link {
           font-weight: 700;
+          color: #002F24;
+          text-decoration: none;
+          margin-left: 4px;
+        }
+
+        .signup-link:hover {
+          text-decoration: underline;
         }
 
         .shake {
@@ -386,143 +523,184 @@ export default function Login() {
           25% { transform: translateX(-6px); }
           75% { transform: translateX(6px); }
         }
-        
+
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Responsive adjustments for error badges on small screens */
-        @media (max-width: 768px) {
-          .error-badge {
-            position: static;
-            transform: none;
-            left: auto;
-            top: auto;
-            margin-top: 5px;
-            white-space: normal;
+        /* Responsive styling for smaller devices */
+        @media (max-width: 1023px) {
+          .login-page-container {
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 24px 16px;
           }
-          .error-badge::before {
+
+          .login-info-section {
             display: none;
+          }
+
+          .login-form-section {
+            flex: 1;
+            width: 100%;
+            padding: 0;
+          }
+
+          .login-card-new {
+            max-width: 100%;
+            padding: 40px 24px;
+            border-radius: 28px;
           }
         }
       `}</style>
 
-      <div className={`login-card-new ${shake ? 'shake' : ''}`}>
+      {/* Left panel: Info & brand representation */}
+      <div className="login-info-section">
+        <div className="info-center-content">
+          <div className="info-horse-svg">
+            <svg viewBox="0 0 120 120" fill="none" stroke="#002F24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              {/* Stylized horse outline facing left */}
+              <path d="M75,95 C75,80 78,55 70,40 C66,32 58,25 58,18 C58,15 62,12 65,15 C68,18 70,25 70,30" />
+              <path d="M58,18 C54,14 48,15 48,22 C48,25 50,30 52,32" />
+              <path d="M53,24 C50,20 44,21 44,28 C44,31 46,36 48,38" />
+              <path d="M52,32 C48,35 40,40 38,48 C36,55 35,62 30,68 C26,72 20,74 24,78 C28,82 35,80 39,76 C43,72 45,65 48,60" />
+              <path d="M48,60 C50,65 52,70 56,73 C60,76 66,75 70,70 M30,68 L32,71" />
+              <path d="M 32,88 C 50,95 70,95 88,88" stroke="#C5A880" strokeWidth="1.8" />
+            </svg>
+          </div>
 
-        {/* Logo */}
-        <div className="login-logo-container">
-          <div className="logo-symbol">
-            <i className="fa-solid fa-users"></i>
-          </div>
-          <div className="logo-text">
-            HRS<span className="logo-dot">.</span>
-          </div>
+          {/* <h1 className="info-main-title">Ride. Learn. Grow.</h1>
+          <p className="info-sub-title">Empowering riders of all levels with passion and care.</p>
+          <div className="info-gold-divider"></div> */}
         </div>
 
-        <div className="login-title-new">User Login</div>
-
-        {/* General Alert */}
-        {alertMsg && (
-          <div style={{ width: '100%', padding: '10px 14px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 4, color: '#b91c1c', fontSize: 13, marginBottom: 15, boxSizing: 'border-box' }}>
-            {alertMsg}
-          </div>
-        )}
-
-        <form onSubmit={handleLogin} className="form-new" noValidate>
-          {/* Email / Username */}
-          <div className="input-group-new">
-            <input
-              id="login-email"
-              className={`input-new ${emailErr ? 'is-error' : ''}`}
-              type="email"
-              value={email}
-              onChange={(e) => { setEmail(e.target.value); if (emailErr) validateEmail(e.target.value); setAlertMsg(""); }}
-              onBlur={(e) => validateEmail(e.target.value)}
-              placeholder="Username / Email Address"
-            />
-            {emailErr && (
-              <div className="error-badge">
-                {emailErr}
-              </div>
-            )}
-          </div>
-
-          {/* Password */}
-          <div className="input-group-new" style={{ marginBottom: 15 }}>
-            <input
-              id="login-password"
-              className={`input-new ${pwErr ? 'is-error' : ''}`}
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => { setPassword(e.target.value); if (pwErr) validatePw(e.target.value); setAlertMsg(""); }}
-              onBlur={(e) => validatePw(e.target.value)}
-              placeholder="Password"
-            />
-            <button type="button" className="pw-toggle" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: 11, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#7f8c8d', fontSize: 14, padding: 5, borderRadius: 6 }}>
-              <i className={`fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
-            </button>
-            {pwErr && (
-              <div className="error-badge">
-                {pwErr}
-              </div>
-            )}
-          </div>
-
-          {/* Remember Me Checkbox */}
-          {/* <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, width: '100%' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', userSelect: 'none' }}>
-              <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} style={{ display: 'none' }} />
-              <span style={{ width: 17, height: 17, borderRadius: 4, flexShrink: 0, border: `1.5px solid ${rememberMe ? '#5191c1' : '#d1d5db'}`, background: rememberMe ? '#5191c1' : '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}>
-                <i className="fa-solid fa-check" style={{ fontSize: 9, color: '#fff', opacity: rememberMe ? 1 : 0 }}></i>
-              </span>
-              <span style={{ fontSize: 13, color: '#555555', fontWeight: 500 }}>Remember Me</span>
-            </label>
-          </div> */}
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            id="login-submit"
-            className="btn-submit-new"
-            disabled={isLoading || isSuccess}
-          >
-            {isLoading && (
-              <div style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,.28)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin .6s linear infinite' }}></div>
-            )}
-            {isSuccess ? 'Access Granted...' : (isLoading ? 'Logging in...' : 'Login')}
-          </button>
-        </form>
-
-        {/* Forgot Password */}
-        <Link to="/forgot-password" className="link-forgot-new">Forgot Password?</Link>
-
-        {/* Connect Header */}
-        <div className="connect-header-new">Connect with HRS</div>
-
-        {/* Social Row */}
-        <div className="social-row-new">
-          <a href="#" className="social-circle-new fb"><i className="fa-brands fa-facebook-f"></i></a>
-          <a href="#" className="social-circle-new tw"><i className="fa-brands fa-x-twitter"></i></a>
-          <a href="#" className="social-circle-new ln"><i className="fa-brands fa-linkedin-in"></i></a>
-          <a href="#" className="social-circle-new ig"><i className="fa-brands fa-instagram"></i></a>
-        </div>
-
-        {/* App Downloads */}
-        {/* <div className="app-downloads-new">
-          <a href="#" className="app-btn-new">
-            <i className="fa-brands fa-apple app-icon-new"></i>
-            <div className="app-btn-text-new">
-              <span className="app-sub-text-new">Download on the</span>
-              <span className="app-main-text-new">App Store</span>
+        {/* Badges footer */}
+        {/* <div className="info-badges-row">
+          <div className="info-badge-item">
+            <div className="badge-icon-circle">
+              <i className="fa-solid fa-graduation-cap"></i>
             </div>
-          </a>
-          <a href="#" className="app-btn-new">
-            <i className="fa-brands fa-google-play app-icon-new" style={{ fontSize: 16 }}></i>
-            <div className="app-btn-text-new">
-              <span className="app-sub-text-new">Get it on</span>
-              <span className="app-main-text-new">Google Play</span>
+            <span className="badge-text">Expert Trainers</span>
+          </div>
+          <div className="info-badge-item">
+            <div className="badge-icon-circle">
+              <i className="fa-solid fa-shield-halved"></i>
             </div>
-          </a>
+            <span className="badge-text">Safe & Trusted</span>
+          </div>
+          <div className="info-badge-item">
+            <div className="badge-icon-circle">
+              <i className="fa-solid fa-award"></i>
+            </div>
+            <span className="badge-text">Excellence in Every Ride</span>
+          </div>
         </div> */}
+      </div>
 
+      {/* Right panel: Login card form */}
+      <div className="login-form-section">
+        <div className={`login-card-new ${shake ? 'shake' : ''}`}>
+
+          {/* School logo */}
+          <div className="school-logo-container">
+            <img src="/logo.png" alt="Horse Riding School Logo" className="school-logo" />
+          </div>
+
+          <h2 className="welcome-title">Welcome Back</h2>
+          <p className="welcome-subtitle">Sign in to continue to your account</p>
+
+          {/* General alert error messages */}
+          {alertMsg && (
+            <div style={{ width: '100%', padding: '12px 14px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 10, color: '#ef4444', fontSize: 13.5, marginBottom: 20, boxSizing: 'border-box', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <i className="fa-solid fa-circle-exclamation"></i>
+              <span>{alertMsg}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} className="form-new" noValidate>
+
+            {/* Email Address Input */}
+            <div className="input-group-new">
+              <label className="form-label" htmlFor="login-email">Email Address</label>
+              <div className="input-container-inner">
+                <i className="fa-regular fa-envelope input-icon-left"></i>
+                <input
+                  id="login-email"
+                  className={`input-new ${emailErr ? 'is-error' : ''}`}
+                  type="email"
+                  value={email}
+                  onChange={(e) => { setEmail(e.target.value); if (emailErr) validateEmail(e.target.value); setAlertMsg(""); }}
+                  onBlur={(e) => validateEmail(e.target.value)}
+                  placeholder="your@email.com"
+                />
+              </div>
+              {emailErr && (
+                <div className="error-message">
+                  <i className="fa-solid fa-circle-exclamation"></i>
+                  {emailErr}
+                </div>
+              )}
+            </div>
+
+            {/* Password Input */}
+            <div className="input-group-new">
+              <label className="form-label" htmlFor="login-password">Password</label>
+              <div className="input-container-inner">
+                <i className="fa-solid fa-lock input-icon-left"></i>
+                <input
+                  id="login-password"
+                  className={`input-new ${pwErr ? 'is-error' : ''}`}
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => { setPassword(e.target.value); if (pwErr) validatePw(e.target.value); setAlertMsg(""); }}
+                  onBlur={(e) => validatePw(e.target.value)}
+                  placeholder="••••••••••••"
+                />
+                <button type="button" className="pw-toggle" onClick={() => setShowPassword(!showPassword)}>
+                  <i className={`fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                </button>
+              </div>
+              {pwErr && (
+                <div className="error-message">
+                  <i className="fa-solid fa-circle-exclamation"></i>
+                  {pwErr}
+                </div>
+              )}
+            </div>
+
+            {/* Checkbox and Forgot Password link */}
+            <div className="form-actions-row">
+              <label className="remember-me-label">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  style={{ display: 'none' }}
+                />
+                <span className={`remember-checkbox-custom ${rememberMe ? 'checked' : ''}`}>
+                  {rememberMe && <i className="fa-solid fa-check"></i>}
+                </span>
+                <span className="remember-me-text">Remember me</span>
+              </label>
+
+              <Link to="/forgot-password" className="forgot-password-link">Forgot password?</Link>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              id="login-submit"
+              className="btn-signin"
+              disabled={isLoading || isSuccess}
+            >
+              {isLoading && (
+                <div style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,.28)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin .6s linear infinite' }}></div>
+              )}
+              <span>{isSuccess ? 'Access Granted...' : (isLoading ? 'Logging in...' : 'Sign In')}</span>
+              {!isLoading && !isSuccess && <i className="fa-solid fa-arrow-right"></i>}
+            </button>
+          </form>
+
+        </div>
       </div>
     </div>
   );
