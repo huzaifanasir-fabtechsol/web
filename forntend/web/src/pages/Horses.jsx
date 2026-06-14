@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
@@ -55,6 +55,9 @@ export default function Horses() {
   const [formErrors, setFormErrors] = useState({});
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const fileInputRef = useRef(null);
 
   // Detail Modal state
   const [viewingHorse, setViewingHorse] = useState(null);
@@ -112,6 +115,8 @@ export default function Horses() {
   function openCreate() {
     setEditingHorse(null);
     setForm(EMPTY_FORM);
+    setPhotoFile(null);
+    setPhotoPreview(null);
     setFormErrors({});
     setSaveError("");
     setShowModal(true);
@@ -129,6 +134,8 @@ export default function Horses() {
       breed: horse.breed || "",
       gender: horse.gender || "Stallion",
     });
+    setPhotoFile(null);
+    setPhotoPreview(horse.profile_photo || null);
     setFormErrors({});
     setSaveError("");
     setShowModal(true);
@@ -138,6 +145,8 @@ export default function Horses() {
     setShowModal(false);
     setEditingHorse(null);
     setForm(EMPTY_FORM);
+    setPhotoFile(null);
+    setPhotoPreview(null);
     setFormErrors({});
     setSaveError("");
   }
@@ -146,6 +155,14 @@ export default function Horses() {
     const { name, value } = e.target;
     setForm((f) => ({ ...f, [name]: value }));
     setFormErrors((fe) => ({ ...fe, [name]: "" }));
+  }
+
+  function handlePictureChange(e) {
+    const file = e.target.files[0];
+    if (file) {
+      setPhotoFile(file);
+      setPhotoPreview(URL.createObjectURL(file));
+    }
   }
 
   function validate() {
@@ -170,10 +187,17 @@ export default function Horses() {
     setSaving(true);
     setSaveError("");
     try {
-      const payload = {
-        ...form,
-        owner: Number(form.owner),
-      };
+      let payload;
+      if (photoFile) {
+        payload = new FormData();
+        Object.entries(form).forEach(([k, v]) => payload.append(k, v));
+        payload.append("profile_photo", photoFile);
+      } else {
+        payload = {
+          ...form,
+          owner: Number(form.owner),
+        };
+      }
       if (editingHorse) {
         await updateHorse(accessToken, editingHorse.id, payload);
       } else {
@@ -316,7 +340,7 @@ export default function Horses() {
               <tr>
                 <th className="sortable">Horse Name <i className="fa-solid fa-sort"></i></th>
                 <th>Breed</th>
-                <th>Age & Gender</th>
+                <th>Gender</th>
                 <th>Owner Details</th>
                 <th>Arrival Date</th>
                 <th style={{ textAlign: "center" }}>Actions</th>
@@ -341,7 +365,11 @@ export default function Horses() {
                     <td>
                       <div className="horse-cell">
                         <div className="horse-avatar">
-                          <i className="fa-solid fa-horse" style={{ color: "var(--text-soft)", fontSize: 24 }}></i>
+                          {horse.profile_photo ? (
+                            <img src={horse.profile_photo} alt={horse.horse_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                          ) : (
+                            <i className="fa-solid fa-horse" style={{ color: "var(--text-soft)", fontSize: 20 }}></i>
+                          )}
                         </div>
                         <div>
                           <div className="h-name">{horse.horse_name}</div>
@@ -353,7 +381,7 @@ export default function Horses() {
                       <span style={{ fontWeight: 500 }}>{horse.breed}</span>
                     </td>
                     <td>
-                      {calculateAge(horse.date_of_birth)} yrs • {horse.gender}
+                      {horse.gender}
                     </td>
                     <td>
                       <div style={{ fontSize: 13, color: "var(--text-dark)", fontWeight: 500 }}>
@@ -452,6 +480,24 @@ export default function Horses() {
                 {saveError}
               </div>
             )}
+
+            {/* Photo Upload */}
+            <div className="upload-zone" style={{ marginBottom: 20 }}>
+              <div className="upload-preview" onClick={() => fileInputRef.current?.click()} style={{ cursor: "pointer" }}>
+                {photoPreview ? (
+                  <img src={photoPreview} alt="preview" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
+                ) : (
+                  <i className="fa-solid fa-camera ph-icon"></i>
+                )}
+              </div>
+              <div className="upload-info">
+                <h4>Horse Photo</h4>
+                <p>JPG, PNG or WEBP. Max size 2MB.</p>
+                <button type="button" className="btn btn-outline btn-sm" onClick={() => fileInputRef.current?.click()}>Select Image</button>
+                <input ref={fileInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handlePictureChange} />
+              </div>
+            </div>
+
             <div className="form-grid">
               <div className="form-divider"><span>Basic Information</span></div>
 
@@ -549,7 +595,7 @@ export default function Horses() {
                   <option value="">-- Select Owner --</option>
                   {owners.map((owner) => (
                     <option key={owner.id} value={owner.id}>
-                      {owner.owner_type === "Company Owned" ? "🏢 Company Owned (Internal Stable)" : `${owner.name} (${owner.email})`}
+                      { `${owner.name} (${owner.email})`}
                     </option>
                   ))}
                 </select>
@@ -601,8 +647,12 @@ export default function Horses() {
             {viewingHorse && (
               <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "16px", borderBottom: "1px solid var(--border-color)", paddingBottom: "16px" }}>
-                  <div className="horse-avatar" style={{ width: "64px", height: "64px", borderRadius: "50%", background: "var(--bg-soft)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <i className="fa-solid fa-horse" style={{ color: "var(--accent2)", fontSize: "32px" }}></i>
+                  <div className="horse-avatar" style={{ width: "64px", height: "64px", borderRadius: "50%", background: "var(--bg-soft)", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+                    {viewingHorse.profile_photo ? (
+                      <img src={viewingHorse.profile_photo} alt={viewingHorse.horse_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      <i className="fa-solid fa-horse" style={{ color: "var(--accent2)", fontSize: "32px" }}></i>
+                    )}
                   </div>
                   <div>
                     <h4 style={{ margin: 0, fontSize: "18px", color: "var(--text-dark)" }}>{viewingHorse.horse_name}</h4>

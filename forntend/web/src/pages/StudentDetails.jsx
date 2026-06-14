@@ -70,7 +70,7 @@ export default function StudentDetails() {
           </div>
         </div>
         <div>
-          <span className={`pill ${student.is_active ? "pill-green" : "pill-gray"}`} style={{ fontSize: 13, padding: "6px 14px" }}>
+          <span className={`pill ${student.is_active ? "pill-green" : "pill-red"}`} style={{ fontSize: 13, padding: "6px 14px" }}>
             {student.is_active ? "Active Student" : "Inactive Student"}
           </span>
         </div>

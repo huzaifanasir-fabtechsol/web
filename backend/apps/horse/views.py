@@ -176,11 +176,11 @@ class HorseListCreateView(APIView):
             'page': page,
             'page_size': page_size,
             'total_pages': (total + page_size - 1) // page_size if total else 1,
-            'results': HorseSerializer(results, many=True).data,
+            'results': HorseSerializer(results, many=True, context={'request': request}).data,
         })
 
     def post(self, request):
-        s = HorseSerializer(data=request.data)
+        s = HorseSerializer(data=request.data, context={'request': request})
         s.is_valid(raise_exception=True)
         s.save()
         return Response(s.data, status=status.HTTP_201_CREATED)
@@ -199,13 +199,13 @@ class HorseDetailView(APIView):
         obj = self._get_object(pk)
         if not obj:
             return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
-        return Response(HorseSerializer(obj).data)
+        return Response(HorseSerializer(obj, context={'request': request}).data)
 
     def put(self, request, pk):
         obj = self._get_object(pk)
         if not obj:
             return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
-        s = HorseSerializer(obj, data=request.data)
+        s = HorseSerializer(obj, data=request.data, context={'request': request})
         s.is_valid(raise_exception=True)
         s.save()
         return Response(s.data)
@@ -214,7 +214,7 @@ class HorseDetailView(APIView):
         obj = self._get_object(pk)
         if not obj:
             return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
-        s = HorseSerializer(obj, data=request.data, partial=True)
+        s = HorseSerializer(obj, data=request.data, partial=True, context={'request': request})
         s.is_valid(raise_exception=True)
         s.save()
         return Response(s.data)

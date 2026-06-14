@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Course, CourseEnrollment
-from .serializers import CourseSerializer
+from .serializers import CourseSerializer, StudentEnrollmentSerializer
 from apps.students.models import StudentProfile
 
 PAGE_SIZE = 10

@@ -144,8 +144,24 @@ export default function Students() {
 
   function handleFormChange(e) {
     const { name, value, type, checked } = e.target;
-    setForm((f) => ({ ...f, [name]: type === "checkbox" ? checked : value }));
-    setFormErrors((fe) => ({ ...fe, [name]: "" }));
+    if (name === "cnic" || name === "guardian_cnic") {
+      const nums = value.replace(/\D/g, "").slice(0, 13);
+      let formatted = "";
+      if (nums.length > 0) {
+        formatted += nums.slice(0, 5);
+        if (nums.length > 5) {
+          formatted += "-" + nums.slice(5, 12);
+          if (nums.length > 12) {
+            formatted += "-" + nums.slice(12, 13);
+          }
+        }
+      }
+      setForm((f) => ({ ...f, [name]: formatted }));
+      setFormErrors((fe) => ({ ...fe, [name]: "" }));
+    } else {
+      setForm((f) => ({ ...f, [name]: type === "checkbox" ? checked : value }));
+      setFormErrors((fe) => ({ ...fe, [name]: "" }));
+    }
   }
 
   function handlePictureChange(e) {
@@ -158,14 +174,26 @@ export default function Students() {
 
   function validate() {
     const errs = {};
+    const cnicRe = /^\d{5}-\d{7}-\d{1}$/;
     if (!form.name.trim()) errs.name = "Name is required.";
     if (!form.age || isNaN(form.age) || Number(form.age) < 1) errs.age = "Valid age required.";
     if (!form.phone_number.trim()) errs.phone_number = "Phone number is required.";
-    if (!form.cnic.trim()) errs.cnic = "CNIC is required.";
+    
+    if (!form.cnic.trim()) {
+      errs.cnic = "CNIC is required.";
+    } else if (!cnicRe.test(form.cnic)) {
+      errs.cnic = "CNIC format must be XXXXX-XXXXXXX-X";
+    }
+    
     if (!form.admission_date) errs.admission_date = "Admission date is required.";
     if (!form.guardian_name.trim()) errs.guardian_name = "Guardian name is required.";
     if (!form.guardian_contact.trim()) errs.guardian_contact = "Guardian contact is required.";
-    if (!form.guardian_cnic.trim()) errs.guardian_cnic = "Guardian CNIC is required.";
+    
+    if (!form.guardian_cnic.trim()) {
+      errs.guardian_cnic = "Guardian CNIC is required.";
+    } else if (!cnicRe.test(form.guardian_cnic)) {
+      errs.guardian_cnic = "Guardian CNIC format must be XXXXX-XXXXXXX-X";
+    }
     return errs;
   }
 
@@ -435,7 +463,7 @@ export default function Students() {
                       <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{student.guardian_contact}</div>
                     </td>
                     <td>
-                      <span className={`pill ${student.is_active ? "pill-green" : "pill-gray"}`}>
+                      <span className={`pill ${student.is_active ? "pill-green" : "pill-red"}`}>
                         {student.is_active ? "Active" : "Inactive"}
                       </span>
                     </td>

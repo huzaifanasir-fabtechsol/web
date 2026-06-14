@@ -27,10 +27,34 @@ function RevenueChart({ data, loading }) {
 
   const max = Math.max(...data.map((d) => d.revenue), 1);
   const CHART_H = 180;
-  const totalW = data.length * 36;
+  const isAllZero = data.every((d) => d.revenue === 0);
 
   return (
-    <div style={{ width: "100%", padding: "0 16px" }}>
+    <div style={{ width: "100%", padding: "0 16px", position: "relative" }}>
+      {isAllZero && (
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 24,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "rgba(255, 255, 255, 0.75)",
+            zIndex: 10,
+            borderRadius: "10px",
+            backdropFilter: "blur(2px)",
+          }}
+        >
+          <i className="fa-solid fa-face-meh" style={{ fontSize: 32, color: "var(--text-soft)", marginBottom: 8 }} />
+          <span style={{ color: "var(--text-mid)", fontSize: 13, fontWeight: 600 }}>No revenue data available</span>
+          <span style={{ color: "var(--text-soft)", fontSize: 11, marginTop: 2 }}>Payments will populate this chart.</span>
+        </div>
+      )}
+
       {/* Chart container */}
       <div
         style={{
@@ -48,8 +72,6 @@ function RevenueChart({ data, loading }) {
           const isLast = i === data.length - 1;
           const defaultBarColor = isLast ? "#1a1f2e" : "#e5e7eb";
           const hoverBarColor = isLast ? "#374151" : "#d1d5db";
-          const labelColor = isLast ? "#1a1f2e" : "#9ca3af";
-          const labelWeight = isLast ? "700" : "400";
 
           return (
             <div
@@ -89,18 +111,19 @@ function RevenueChart({ data, loading }) {
                 style={{
                   width: "100%",
                   maxWidth: 32,
-                  height: `${Math.max(percentage, d.revenue > 0 ? 4 : 0)}%`,
-                  backgroundColor: defaultBarColor,
-                  borderRadius: "5px 5px 0 0",
+                  height: d.revenue > 0 ? `${percentage}%` : "6px",
+                  backgroundColor: d.revenue > 0 ? defaultBarColor : "#f3f4f6",
+                  borderRadius: d.revenue > 0 ? "5px 5px 0 0" : "3px",
+                  border: d.revenue > 0 ? "none" : "1px dashed #e5e7eb",
                   transition: "height 0.4s ease, background-color 0.2s ease",
                   cursor: "pointer",
                 }}
                 title={`${d.label}: Rs. ${d.revenue.toLocaleString()}`}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = hoverBarColor;
+                  if (d.revenue > 0) e.currentTarget.style.backgroundColor = hoverBarColor;
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = defaultBarColor;
+                  if (d.revenue > 0) e.currentTarget.style.backgroundColor = defaultBarColor;
                 }}
               />
             </div>
@@ -487,9 +510,14 @@ export default function Dashboard() {
                       width: 32, height: 32, borderRadius: 8, flexShrink: 0,
                       background: "#fff7ed", display: "flex", alignItems: "center",
                       justifyContent: "center", border: "1px solid #fed7aa",
+                      overflow: "hidden",
                     }}
                   >
-                    <i className="fa-solid fa-horse-head" style={{ color: "#f97316", fontSize: 13 }} />
+                    {h.profile_photo ? (
+                      <img src={h.profile_photo} alt={h.horse_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      <i className="fa-solid fa-horse-head" style={{ color: "#f97316", fontSize: 13 }} />
+                    )}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div className="s-name" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>

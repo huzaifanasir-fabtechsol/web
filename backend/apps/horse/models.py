@@ -59,6 +59,7 @@ class Horse(models.Model):
     color = models.CharField(max_length=100)
     breed = models.CharField(max_length=100, choices=BREED_CHOICES)
     gender = models.CharField(max_length=50, choices=GENDER_CHOICES)
+    profile_photo = models.ImageField(upload_to='horses/photos/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

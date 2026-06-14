@@ -61,8 +61,24 @@ export default function AddWorker() {
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
-    setForm((f) => ({ ...f, [name]: value }));
-    setFormErrors((fe) => ({ ...fe, [name]: "" }));
+    if (name === "cnic") {
+      const nums = value.replace(/\D/g, "").slice(0, 13);
+      let formatted = "";
+      if (nums.length > 0) {
+        formatted += nums.slice(0, 5);
+        if (nums.length > 5) {
+          formatted += "-" + nums.slice(5, 12);
+          if (nums.length > 12) {
+            formatted += "-" + nums.slice(12, 13);
+          }
+        }
+      }
+      setForm((f) => ({ ...f, [name]: formatted }));
+      setFormErrors((fe) => ({ ...fe, [name]: "" }));
+    } else {
+      setForm((f) => ({ ...f, [name]: value }));
+      setFormErrors((fe) => ({ ...fe, [name]: "" }));
+    }
   };
 
   const handleFileChange = (e) => {

@@ -12,14 +12,12 @@ export default function Sidebar() {
   return (
     <aside className="sidebar">
       <div className="sidebar-logo">
-        <div className="logo-icon"><i className="fa-solid fa-horse"></i></div>
+        <img src="/logo.png" alt="EquiManage Logo" style={{ width: "36px", height: "36px", objectFit: "contain" }} />
         <div>
           <div className="logo-text">EquiManage</div>
           <div className="logo-sub">Riding School System</div>
         </div>
       </div>
-
-      <div className="nav-label">Main Menu</div>
 
       <NavLink to="/" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
         <i className="fa-solid fa-chart-pie"></i> Dashboard

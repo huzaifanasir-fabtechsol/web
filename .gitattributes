@@ -1,2 +1,7 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Shell scripts must always use LF, even on Windows checkout,
+# so they run correctly inside Linux Docker containers
+*.sh text eol=lf
+dockerentrypoint.sh text eol=lf

@@ -21,6 +21,28 @@ class CourseSerializer(serializers.ModelSerializer):
         return value
 
 
+class StudentEnrollmentSerializer(serializers.ModelSerializer):
+    """An enrollment from a student's perspective — for the student profile page."""
+    course_name = serializers.CharField(source='course.name', read_only=True)
+    duration_months = serializers.IntegerField(source='course.duration_months', read_only=True)
+    fee = serializers.DecimalField(source='course.fee', max_digits=10, decimal_places=2, read_only=True)
+    end_date = serializers.DateField(read_only=True)
+    status = serializers.SerializerMethodField()
+    status_display = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CourseEnrollment
+        fields = ['id', 'course', 'course_name', 'duration_months', 'fee',
+                  'start_date', 'end_date', 'status', 'status_display']
+
+    def get_status(self, obj):
+        # Derived on read so the value is correct even between scheduled runs.
+        return obj.effective_status()
+
+    def get_status_display(self, obj):
+        return dict(CourseEnrollment.STATUS_CHOICES).get(self.get_status(obj), '')
+
+
 class CourseEnrollmentSerializer(serializers.ModelSerializer):
     student_name = serializers.CharField(source='student.name', read_only=True)
     experience_level = serializers.CharField(source='student.experience_level', read_only=True)

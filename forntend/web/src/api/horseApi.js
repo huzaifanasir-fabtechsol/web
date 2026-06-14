@@ -75,11 +75,13 @@ export function getHorse(token, id) {
 }
 
 export function createHorse(token, data) {
-  return authFetch(`${BASE_URL}/horse/horses/`, "POST", data, token);
+  const isFormData = data instanceof FormData;
+  return authFetch(`${BASE_URL}/horse/horses/`, "POST", data, token, isFormData);
 }
 
 export function updateHorse(token, id, data) {
-  return authFetch(`${BASE_URL}/horse/horses/${id}/`, "PATCH", data, token);
+  const isFormData = data instanceof FormData;
+  return authFetch(`${BASE_URL}/horse/horses/${id}/`, "PATCH", data, token, isFormData);
 }
 
 export function deleteHorse(token, id) {

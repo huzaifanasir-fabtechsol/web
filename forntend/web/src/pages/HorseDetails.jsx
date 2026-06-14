@@ -73,7 +73,7 @@ export default function HorseDetails() {
             </button>
             <div>
               <h2>Horse Profile</h2>
-              <p>Detailed health and lineage characteristics of the equine.</p>
+              <p>Detailed health and lineage characteristics of the Horse.</p>
             </div>
           </div>
         </div>
@@ -88,8 +88,28 @@ export default function HorseDetails() {
         {/* Profile Card left */}
         <div className="card" style={{ height: "fit-content" }}>
           <div className="card-body" style={{ textAlign: "center", paddingTop: 32, paddingBottom: 32 }}>
-            <div className="card-icon icon-orange" style={{ width: 80, height: 80, fontSize: 32, borderRadius: "50%", margin: "0 auto 20px" }}>
-              <i className="fa-solid fa-horse"></i>
+            <div
+              className="card-icon icon-orange"
+              style={{
+                width: 80,
+                height: 80,
+                borderRadius: "50%",
+                margin: "0 auto 20px",
+                overflow: "hidden",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <img
+                src={horse.profile_photo}
+                alt="Horse"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
             </div>
 
             <h3 style={{ fontSize: 20, fontWeight: 700, color: "var(--text-dark)", marginBottom: 4 }}>{horse.horse_name}</h3>
@@ -102,10 +122,10 @@ export default function HorseDetails() {
                 <span style={{ fontSize: 13, color: "var(--text-soft)" }}>Gender</span>
                 <strong style={{ fontSize: 13, color: "var(--text-dark)" }}>{horse.gender}</strong>
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+              {/* <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
                 <span style={{ fontSize: 13, color: "var(--text-soft)" }}>Age</span>
                 <strong style={{ fontSize: 13, color: "var(--text-dark)" }}>{calculateAge(horse.date_of_birth)} Years</strong>
-              </div>
+              </div> */}
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <span style={{ fontSize: 13, color: "var(--text-soft)" }}>Color</span>
                 <strong style={{ fontSize: 13, color: "var(--text-dark)" }}>{horse.color}</strong>
@@ -124,7 +144,7 @@ export default function HorseDetails() {
                   <i className="fa-solid fa-clipboard-list"></i>
                 </div>
                 <div>
-                  <h4 className="card-title">Equine Information</h4>
+                  <h4 className="card-title">Horse Information</h4>
                   <span className="card-sub">Core physical attributes and details</span>
                 </div>
               </div>

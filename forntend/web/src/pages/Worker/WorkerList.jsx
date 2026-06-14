@@ -335,7 +335,7 @@ export default function WorkerList() {
           <div className="modal-footer">
             <button className="btn btn-outline" onClick={() => setDeletingId(null)}>Cancel</button>
             <button
-              className="btn className btn-danger"
+              className="btn btn-danger"
               onClick={() => handleDelete(deletingId)}
               disabled={deleteLoading}
             >

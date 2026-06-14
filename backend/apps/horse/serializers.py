@@ -29,6 +29,6 @@ class HorseSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'horse_name', 'owner', 'owner_name', 'owner_email',
             'arrival_date', 'height', 'date_of_birth', 'color', 'breed',
-            'gender', 'created_at', 'updated_at'
+            'gender', 'profile_photo', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']

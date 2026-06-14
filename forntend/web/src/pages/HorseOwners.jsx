@@ -122,12 +122,29 @@ export default function HorseOwners() {
 
   function handleFormChange(e) {
     const { name, value } = e.target;
-    setForm((f) => ({ ...f, [name]: value }));
-    setFormErrors((fe) => ({ ...fe, [name]: "" }));
+    if (name === "cnic") {
+      const nums = value.replace(/\D/g, "").slice(0, 13);
+      let formatted = "";
+      if (nums.length > 0) {
+        formatted += nums.slice(0, 5);
+        if (nums.length > 5) {
+          formatted += "-" + nums.slice(5, 12);
+          if (nums.length > 12) {
+            formatted += "-" + nums.slice(12, 13);
+          }
+        }
+      }
+      setForm((f) => ({ ...f, [name]: formatted }));
+      setFormErrors((fe) => ({ ...fe, [name]: "" }));
+    } else {
+      setForm((f) => ({ ...f, [name]: value }));
+      setFormErrors((fe) => ({ ...fe, [name]: "" }));
+    }
   }
 
   function validate() {
     const errs = {};
+    const cnicRe = /^\d{5}-\d{7}-\d{1}$/;
     if (!form.name.trim()) errs.name = "Full name is required.";
     if (!form.phone.trim()) errs.phone = "Phone number is required.";
     
@@ -137,7 +154,11 @@ export default function HorseOwners() {
       errs.email = "Please enter a valid email address.";
     }
 
-    if (!form.cnic.trim()) errs.cnic = "CNIC is required.";
+    if (!form.cnic.trim()) {
+      errs.cnic = "CNIC is required.";
+    } else if (!cnicRe.test(form.cnic)) {
+      errs.cnic = "CNIC format must be XXXXX-XXXXXXX-X";
+    }
     if (!form.joined_date) errs.joined_date = "Joined date is required.";
 
     return errs;
@@ -255,12 +276,12 @@ export default function HorseOwners() {
                   <tr key={owner.id}>
                     <td>
                       <div className="rider-cell">
-                        <div className="tbl-avatar" style={{ background: "var(--accent1)" }}>
+                        {/* <div className="tbl-avatar" style={{ background: "var(--accent1)" }}>
                           <i className="fa-solid fa-user-tie"></i>
-                        </div>
+                        </div> */}
                         <div>
                           <div className="r-name">{owner.name}</div>
-                          <div className="r-id">OWN-{String(owner.id).padStart(3, "0")}</div>
+                          {/* <div className="r-id">OWN-{String(owner.id).padStart(3, "0")}</div> */}
                         </div>
                       </div>
                     </td>

@@ -59,7 +59,8 @@ COPY --chown=django-user:django-user . .
 
 # Copy and setup entrypoint script permissions
 COPY --chown=django-user:django-user dockerentrypoint.sh /app/dockerentrypoint.sh
-RUN chmod +x /app/dockerentrypoint.sh
+# Strip any CRLF line endings (Windows) so the shebang resolves, then make executable
+RUN sed -i 's/\r$//' /app/dockerentrypoint.sh && chmod +x /app/dockerentrypoint.sh
 
 # Switch to the non-root user
 USER django-user

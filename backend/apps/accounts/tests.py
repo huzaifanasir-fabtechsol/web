@@ -1,6 +1,14 @@
 from django.test import TestCase
+from django.contrib.auth import get_user_model
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APITestCase
+from rest_framework_simplejwt.tokens import RefreshToken
+
 from apps.accounts.email_backend import DynamicSMTPBackend
 from apps.accounts.models import SystemSettings
+
+User = get_user_model()
 
 
 class DynamicSMTPBackendTest(TestCase):
@@ -22,4 +30,30 @@ class DynamicSMTPBackendTest(TestCase):
         self.assertFalse(backend.fail_silently)
         # Ensure it didn't fall back to no-op
         self.assertNotEqual(getattr(backend, "_host", "SET"), None)
+
+
+class TokenRefreshTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            email="testuser@example.com",
+            password="testpassword123"
+        )
+        self.refresh = RefreshToken.for_user(self.user)
+
+    def test_token_refresh_success(self):
+        url = reverse("token-refresh")
+        response = self.client.post(url, {"refresh": str(self.refresh)})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("access", response.data)
+
+    def test_token_refresh_user_does_not_exist(self):
+        # Delete user to simulate a non-existent user token
+        self.user.delete()
+        url = reverse("token-refresh")
+        response = self.client.post(url, {"refresh": str(self.refresh)})
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.data["detail"].code, "no_active_account")
+
+
+
 
