@@ -9,23 +9,23 @@ import {
 import { listStudents, listCourses } from "../../api/courseStudentApi";
 
 const MONTHS = [
-  "January","February","March","April","May","June",
-  "July","August","September","October","November","December",
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
 ];
-const STATUSES  = ["Paid", "Pending", "Failed"];
-const METHODS   = ["Cash", "Bank Transfer", "Card", "JazzCash", "EasyPaisa"];
-const YEARS     = Array.from({ length: 101 }, (_, i) => new Date().getFullYear() - i);
+const STATUSES = ["Paid", "Pending", "Failed"];
+const METHODS = ["Cash", "Bank Transfer", "Card", "JazzCash", "EasyPaisa"];
+const YEARS = Array.from({ length: 101 }, (_, i) => new Date().getFullYear() - i);
 
 const EMPTY_FORM = {
-  student:              "",
-  fee_type:             "Course Fee",
-  course:               "",
-  month:                MONTHS[new Date().getMonth()],
-  year:                 String(new Date().getFullYear()),
-  date:                 new Date().toISOString().split("T")[0],
-  amount:               "",
-  status:               "Pending",
-  payment_method:       "Cash",
+  student: "",
+  fee_type: "Course Fee",
+  course: "",
+  month: MONTHS[new Date().getMonth()],
+  year: String(new Date().getFullYear()),
+  date: new Date().toISOString().split("T")[0],
+  amount: "",
+  status: "Pending",
+  payment_method: "Cash",
   card_or_account_number: "",
 };
 
@@ -36,14 +36,14 @@ export default function AddTransaction() {
   const isEdit = Boolean(id);
 
   // ── Form state ────────────────────────────────────────────────────────────
-  const [form, setForm]     = useState(EMPTY_FORM);
+  const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(isEdit);
 
   // ── Dropdown data ─────────────────────────────────────────────────────────
   const [students, setStudents] = useState([]);
-  const [courses,  setCourses]  = useState([]);
+  const [courses, setCourses] = useState([]);
   const [studentSearch, setStudentSearch] = useState("");
 
   // ── Toast ─────────────────────────────────────────────────────────────────
@@ -59,14 +59,14 @@ export default function AddTransaction() {
   useEffect(() => {
     listStudents(accessToken, { search: studentSearch, page_size: 50 })
       .then((d) => setStudents(d.results || []))
-      .catch(() => {});
+      .catch(() => { });
   }, [accessToken, studentSearch]);
 
   // ── Load all courses ──────────────────────────────────────────────────────
   useEffect(() => {
     listCourses(accessToken, { page_size: 100 })
       .then((d) => setCourses(d.results || []))
-      .catch(() => {});
+      .catch(() => { });
   }, [accessToken]);
 
   // ── Load existing transaction when editing ────────────────────────────────
@@ -76,15 +76,15 @@ export default function AddTransaction() {
     getTransaction(accessToken, id)
       .then((txn) => {
         setForm({
-          student:              String(txn.student),
-          fee_type:             txn.fee_type,
-          course:               txn.course ? String(txn.course) : "",
-          month:                txn.month,
-          year:                 String(txn.year),
-          date:                 txn.date,
-          amount:               String(txn.amount),
-          status:               txn.status,
-          payment_method:       txn.payment_method,
+          student: String(txn.student),
+          fee_type: txn.fee_type,
+          course: txn.course ? String(txn.course) : "",
+          month: txn.month,
+          year: String(txn.year),
+          date: txn.date,
+          amount: String(txn.amount),
+          status: txn.status,
+          payment_method: txn.payment_method,
           card_or_account_number: txn.card_or_account_number || "",
         });
       })
@@ -112,7 +112,7 @@ export default function AddTransaction() {
       ...f,
       fee_type: val,
       course: val === "Registration Fee" ? "" : f.course,
-      amount:  val === "Registration Fee" ? "" : f.amount,
+      amount: val === "Registration Fee" ? "" : f.amount,
     }));
     setErrors((err) => ({ ...err, fee_type: "", course: "" }));
   };
@@ -143,15 +143,15 @@ export default function AddTransaction() {
 
     setSaving(true);
     const payload = {
-      student:              parseInt(form.student, 10),
-      fee_type:             form.fee_type,
-      course:               form.fee_type === "Course Fee" ? parseInt(form.course, 10) : null,
-      month:                form.month,
-      year:                 parseInt(form.year, 10),
-      date:                 form.date,
-      amount:               form.amount,
-      status:               form.status,
-      payment_method:       form.payment_method,
+      student: parseInt(form.student, 10),
+      fee_type: form.fee_type,
+      course: form.fee_type === "Course Fee" ? parseInt(form.course, 10) : null,
+      month: form.month,
+      year: parseInt(form.year, 10),
+      date: form.date,
+      amount: form.amount,
+      status: form.status,
+      payment_method: form.payment_method,
       card_or_account_number: form.card_or_account_number,
     };
 
@@ -183,9 +183,9 @@ export default function AddTransaction() {
 
   if (loading) {
     return (
-      <div className="content" style={{ display:"flex", alignItems:"center", justifyContent:"center", minHeight:400 }}>
-        <div style={{ textAlign:"center", color:"var(--text-soft)" }}>
-          <i className="fa-solid fa-spinner fa-spin" style={{ fontSize:28, marginBottom:14, display:"block" }} />
+      <div className="content" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 400 }}>
+        <div style={{ textAlign: "center", color: "var(--text-soft)" }}>
+          <i className="fa-solid fa-spinner fa-spin" style={{ fontSize: 28, marginBottom: 14, display: "block" }} />
           Loading transaction…
         </div>
       </div>
@@ -229,35 +229,35 @@ export default function AddTransaction() {
 
             {/* ── Fee Type Selector ── */}
             <div className="form-divider"><span>Fee Type</span></div>
-            <div style={{ display:"flex", gap:14, marginBottom:24 }}>
+            <div style={{ display: "flex", gap: 14, marginBottom: 24 }}>
               {["Registration Fee", "Course Fee"].map((ft) => (
                 <label
                   key={ft}
                   style={{
-                    flex:1, display:"flex", alignItems:"center", gap:10,
-                    padding:"14px 18px",
-                    border:`1.5px solid ${form.fee_type === ft ? "var(--active)" : "var(--border)"}`,
-                    borderRadius:12, cursor:"pointer",
+                    flex: 1, display: "flex", alignItems: "center", gap: 10,
+                    padding: "14px 18px",
+                    border: `1.5px solid ${form.fee_type === ft ? "var(--active)" : "var(--border)"}`,
+                    borderRadius: 12, cursor: "pointer",
                     background: form.fee_type === ft ? "#f0f4ff" : "#fff",
-                    transition:"all .2s",
+                    transition: "all .2s",
                   }}
                   onClick={() => setFeeType(ft)}
                 >
                   <div style={{
-                    width:18, height:18, borderRadius:"50%",
-                    border:`5px solid ${form.fee_type === ft ? "var(--active)" : "var(--border)"}`,
-                    background:"#fff", flexShrink:0,
+                    width: 18, height: 18, borderRadius: "50%",
+                    border: `5px solid ${form.fee_type === ft ? "var(--active)" : "var(--border)"}`,
+                    background: "#fff", flexShrink: 0,
                   }} />
                   <div>
-                    <div style={{ fontSize:13, fontWeight:700, color:"var(--text-dark)" }}>{ft}</div>
-                    <div style={{ fontSize:11, color:"var(--text-soft)" }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-dark)" }}>{ft}</div>
+                    <div style={{ fontSize: 11, color: "var(--text-soft)" }}>
                       {ft === "Course Fee" ? "Linked to a specific course" : "One-time registration charge"}
                     </div>
                   </div>
                 </label>
               ))}
             </div>
-            {errors.fee_type && <div className="field-error" style={{ marginTop:-18, marginBottom:14 }}>{errors.fee_type}</div>}
+            {errors.fee_type && <div className="field-error" style={{ marginTop: -18, marginBottom: 14 }}>{errors.fee_type}</div>}
 
             <div className="form-grid">
               {/* ── Student ── */}
@@ -271,19 +271,19 @@ export default function AddTransaction() {
                   <option value="">— Select Student —</option>
                   {students.map((s) => (
                     <option key={s.id} value={s.id}>
-                      {s.name} — {s.cnic}
+                      {s.name}
                     </option>
                   ))}
                 </select>
                 {errors.student && <div className="field-error">{errors.student}</div>}
-                <div style={{ marginTop:6 }}>
+                <div style={{ marginTop: 6 }}>
                   <input
                     type="text"
                     className="form-control"
                     placeholder="Type to search students…"
                     value={studentSearch}
                     onChange={(e) => setStudentSearch(e.target.value)}
-                    style={{ fontSize:12, padding:"6px 10px" }}
+                    style={{ fontSize: 12, padding: "6px 10px" }}
                   />
                 </div>
               </div>
@@ -306,8 +306,8 @@ export default function AddTransaction() {
                   </select>
                   {errors.course && <div className="field-error">{errors.course}</div>}
                   {form.course && (
-                    <div style={{ fontSize:12, color:"var(--accent2)", marginTop:4, fontWeight:600 }}>
-                      <i className="fa-solid fa-circle-check" style={{ marginRight:5 }} />
+                    <div style={{ fontSize: 12, color: "var(--accent2)", marginTop: 4, fontWeight: 600 }}>
+                      <i className="fa-solid fa-circle-check" style={{ marginRight: 5 }} />
                       Course fee auto-filled from course record.
                     </div>
                   )}
@@ -387,27 +387,27 @@ export default function AddTransaction() {
 
               {/* ── Payment Method ── */}
               <div className="form-group span-3">
-                <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                   {METHODS.map((m) => (
                     <label
                       key={m}
                       style={{
-                        display:"flex", alignItems:"center", gap:8,
-                        padding:"10px 16px",
-                        border:`1.5px solid ${form.payment_method === m ? "var(--accent2)" : "var(--border)"}`,
-                        borderRadius:10, cursor:"pointer",
+                        display: "flex", alignItems: "center", gap: 8,
+                        padding: "10px 16px",
+                        border: `1.5px solid ${form.payment_method === m ? "var(--accent2)" : "var(--border)"}`,
+                        borderRadius: 10, cursor: "pointer",
                         background: form.payment_method === m ? "#f0fdf4" : "#fff",
-                        flex:"1 1 120px", minWidth:120,
-                        transition:"all .2s",
+                        flex: "1 1 120px", minWidth: 120,
+                        transition: "all .2s",
                       }}
-                      onClick={() => { setForm((f) => ({ ...f, payment_method: m })); setErrors((e) => ({ ...e, payment_method:"" })); }}
+                      onClick={() => { setForm((f) => ({ ...f, payment_method: m })); setErrors((e) => ({ ...e, payment_method: "" })); }}
                     >
                       <div style={{
-                        width:16, height:16, borderRadius:"50%",
-                        border:`4px solid ${form.payment_method === m ? "var(--accent2)" : "var(--border)"}`,
-                        background:"#fff",
+                        width: 16, height: 16, borderRadius: "50%",
+                        border: `4px solid ${form.payment_method === m ? "var(--accent2)" : "var(--border)"}`,
+                        background: "#fff",
                       }} />
-                      <span style={{ fontSize:13, fontWeight:600, color:"var(--text-dark)" }}>{m}</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-dark)" }}>{m}</span>
                     </label>
                   ))}
                 </div>
@@ -435,7 +435,7 @@ export default function AddTransaction() {
             </div>
 
             {/* ── Actions ── */}
-            <div className="form-actions" style={{ marginTop:24, paddingTop:24, borderTop:"1px solid var(--border)" }}>
+            <div className="form-actions" style={{ marginTop: 24, paddingTop: 24, borderTop: "1px solid var(--border)" }}>
               <button
                 type="button"
                 className="btn btn-outline"

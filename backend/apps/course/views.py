@@ -231,3 +231,25 @@ class CourseEnrollmentView(APIView):
             'removed': deleted_count,
             'total_enrolled': total_enrolled,
         }, status=status.HTTP_200_OK)
+
+
+class StudentEnrollmentsView(APIView):
+    """GET /api/students/<student_id>/enrollments/ — courses a student is enrolled in.
+
+    Powers the "Enrolled Courses" section of the student profile: course name,
+    start date, computed end date, and current (date-derived) status.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, student_id):
+        if not StudentProfile.objects.filter(pk=student_id).exists():
+            return Response({'detail': 'Student not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        qs = (
+            CourseEnrollment.objects
+            .filter(student_id=student_id)
+            .select_related('course')
+            .order_by('-start_date')
+        )
+        data = StudentEnrollmentSerializer(qs, many=True, context={'request': request}).data
+        return Response({'count': len(data), 'results': data})

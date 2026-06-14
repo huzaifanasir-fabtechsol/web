@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { getHorse } from "../api/horseApi";
+import { getSystemSettings } from "../api/settingsApi";
 
 export default function HorseDetails() {
   const { id } = useParams();
@@ -9,6 +10,7 @@ export default function HorseDetails() {
   const { accessToken } = useAuth();
 
   const [horse, setHorse] = useState(null);
+  const [systemSettings, setSystemSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -20,6 +22,11 @@ export default function HorseDetails() {
       try {
         const data = await getHorse(accessToken, id);
         setHorse(data);
+
+        if (data.owner_type === 'Company Owned') {
+          const settingsData = await getSystemSettings(accessToken);
+          setSystemSettings(settingsData);
+        }
       } catch (err) {
         setError(err.message || "Failed to load horse details.");
       } finally {
@@ -184,11 +191,13 @@ export default function HorseDetails() {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
                 <div>
                   <h5 style={{ fontSize: 15, fontWeight: 700, color: "var(--text-dark)", marginBottom: 4 }}>{horse.owner_name}</h5>
-                  <p style={{ fontSize: 13, color: "var(--text-soft)" }}>{horse.owner_email}</p>
+                  <p style={{ fontSize: 13, color: "var(--text-soft)" }}>
+                    {horse.owner_type === 'Company Owned' ? (systemSettings?.contact_email || "N/A") : horse.owner_email}
+                  </p>
                 </div>
                 <div>
                   <button
-                    className="btn btn-outline btn-sm"
+                    className="btn btn-primary btn-sm"
                     onClick={() => navigate(`/horse-owners/${horse.owner}`)}
                   >
                     <i className="fa-regular fa-eye"></i> View Owner Profile

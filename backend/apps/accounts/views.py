@@ -83,3 +83,51 @@ class ChangePasswordView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response({"detail": "Password changed successfully."})
+
+
+class HolidayToggleView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        import datetime
+        date_str = request.data.get("date")
+        if not date_str:
+            return Response({"detail": "date is required."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            datetime.date.fromisoformat(date_str)
+        except ValueError:
+            return Response({"detail": "Invalid date format. Use YYYY-MM-DD."}, status=status.HTTP_400_BAD_REQUEST)
+
+        settings_obj = SystemSettings.get_settings()
+        holidays = settings_obj.holidays or []
+        if date_str not in holidays:
+            new_holidays = list(holidays)
+            new_holidays.append(date_str)
+            settings_obj.holidays = new_holidays
+            settings_obj.save()
+        return Response({"detail": "Holiday marked successfully.", "holidays": settings_obj.holidays})
+
+    def delete(self, request):
+        date_str = request.data.get("date") or request.query_params.get("date")
+        if not date_str:
+            return Response({"detail": "date is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        settings_obj = SystemSettings.get_settings()
+        holidays = settings_obj.holidays or []
+        if date_str in holidays:
+            new_holidays = list(holidays)
+            new_holidays.remove(date_str)
+            settings_obj.holidays = new_holidays
+            settings_obj.save()
+        return Response({"detail": "Holiday unmarked successfully.", "holidays": settings_obj.holidays})
+
+
+class OffDaysView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        settings_obj = SystemSettings.get_settings()
+        return Response({
+            "weekly_off_days": settings_obj.weekly_off_days or [],
+            "holidays": settings_obj.holidays or []
+        })

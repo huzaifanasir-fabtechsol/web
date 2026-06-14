@@ -139,6 +139,8 @@ class SystemSettingsSerializer(serializers.ModelSerializer):
             "smtp_username",
             "smtp_password",
             "default_from_email",
+            "weekly_off_days",
+            "holidays",
         ]
         read_only_fields = ["id", "profile_picture_url"]
         extra_kwargs = {

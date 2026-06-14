@@ -42,6 +42,21 @@ class Course(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+        if not is_new:
+            from apps.attendance.models import Attendance
+            days_to_keep = {d.strip().title() for d in (self.class_days or []) if d}
+            attendances = Attendance.objects.filter(course=self)
+            to_delete_ids = []
+            for att in attendances:
+                weekday_name = att.date.strftime('%A')
+                if weekday_name not in days_to_keep:
+                    to_delete_ids.append(att.pk)
+            if to_delete_ids:
+                Attendance.objects.filter(pk__in=to_delete_ids).delete()
+
     class Meta:
         ordering = ['-created_at']
 

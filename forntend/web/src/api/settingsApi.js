@@ -53,3 +53,26 @@ export function updateSystemSettings(token, data) {
 export function changePassword(token, { current_password, new_password, confirm_password }) {
   return authFetch("/change-password/", "POST", { current_password, new_password, confirm_password }, token);
 }
+
+/**
+ * POST /api/accounts/holiday/
+ * Body: { date }
+ */
+export function postHoliday(token, date) {
+  return authFetch("/holiday/", "POST", { date }, token);
+}
+
+/**
+ * DELETE /api/accounts/holiday/
+ * Body: { date }
+ */
+export function deleteHoliday(token, date) {
+  return authFetch("/holiday/", "DELETE", { date }, token);
+}
+
+/**
+ * GET /api/accounts/off-days/
+ */
+export function getOffDays(token) {
+  return authFetch("/off-days/", "GET", null, token);
+}

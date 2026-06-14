@@ -104,6 +104,11 @@ export function getStudent(token, id) {
   return authFetch(`${BASE_URL}/students/${id}/`, "GET", null, token);
 }
 
+/** GET /api/students/:id/enrollments/ — courses the student is enrolled in */
+export function getStudentEnrollments(token, id) {
+  return authFetch(`${BASE_URL}/students/${id}/enrollments/`, "GET", null, token);
+}
+
 /** POST /api/students/ — supports multipart (FormData) for profile_picture */
 export function createStudent(token, data) {
   const isFormData = data instanceof FormData;

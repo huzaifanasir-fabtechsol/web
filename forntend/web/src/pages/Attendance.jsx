@@ -6,6 +6,8 @@ import {
   bulkLogAttendance,
   listAttendance,
 } from "../api/attendanceApi";
+import { postHoliday, deleteHoliday, getOffDays } from "../api/settingsApi";
+import StudentAttendanceReport from "./StudentAttendanceReport";
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -67,6 +69,10 @@ export default function Attendance() {
   const [selectedCourse, setSelectedCourse] = useState("");
   const [date, setDate]               = useState(today());
 
+  // Off days system states
+  const [offDaysData, setOffDaysData] = useState({ weekly_off_days: [], holidays: [] });
+  const [offDayInfo, setOffDayInfo] = useState({ isOff: false, reason: "" });
+
   // ── Log (marking) state ──────────────────────────────────────────────────
   const [students, setStudents]       = useState([]);   // [{student_id, name, …, status, remarks}]
   const [loadingStudents, setLoadingStudents] = useState(false);
@@ -98,6 +104,38 @@ export default function Attendance() {
     );
   }, []);
 
+  // Load off days on mount
+  useEffect(() => {
+    getOffDays(token)
+      .then((data) => setOffDaysData(data))
+      .catch(() => showToast("Failed to load school off-days.", "error"));
+  }, [token, showToast]);
+
+  // Helper: check if date is off-day
+  const isOffDayDate = useCallback((dateStr) => {
+    if (!dateStr) return { isOff: false, reason: "" };
+    const parts = dateStr.split("-");
+    const d = new Date(parts[0], parts[1] - 1, parts[2]);
+    const weekday = d.toLocaleDateString("en-US", { weekday: "long" });
+    
+    if (offDaysData.weekly_off_days.includes(weekday)) {
+      return { isOff: true, reason: weekday };
+    }
+    if (offDaysData.holidays.includes(dateStr)) {
+      return { isOff: true, reason: "Holiday" };
+    }
+    return { isOff: false, reason: "" };
+  }, [offDaysData]);
+
+  // Update offDayInfo locally when date changes
+  useEffect(() => {
+    const localCheck = isOffDayDate(date);
+    setOffDayInfo(localCheck);
+    if (localCheck.isOff) {
+      setStudents([]);
+    }
+  }, [date, offDaysData, isOffDayDate]);
+
   // ── Load courses on mount ─────────────────────────────────────────────────
   useEffect(() => {
     listCourses(token, { page_size: 100 })
@@ -105,7 +143,7 @@ export default function Attendance() {
         const allCourses = r.results || [];
         setCourses(allCourses);
         
-        // Filter by today's day of the week
+        // Filter by today's day of the week initially
         const todayDay = new Date().toLocaleDateString("en-US", { weekday: "long" });
         const todayCourses = allCourses.filter((c) => {
           if (Array.isArray(c.class_days)) return c.class_days.includes(todayDay);
@@ -132,20 +170,32 @@ export default function Attendance() {
   // ── Load students when course/date changes ────────────────────────────────
   useEffect(() => {
     if (!selectedCourse) return;
+    const localCheck = isOffDayDate(date);
+    if (localCheck.isOff) {
+      setOffDayInfo(localCheck);
+      setStudents([]);
+      return;
+    }
     setLoadingStudents(true);
     getCourseStudentsForAttendance(token, selectedCourse, date)
       .then((r) => {
-        setStudents(
-          (r.students || []).map((s) => ({
-            ...s,
-            status:  s.status  ?? "present",   // default to present
-            remarks: s.remarks ?? "",
-          }))
-        );
+        if (r.is_off_day) {
+          setOffDayInfo({ isOff: true, reason: r.reason });
+          setStudents([]);
+        } else {
+          setOffDayInfo({ isOff: false, reason: "" });
+          setStudents(
+            (r.students || []).map((s) => ({
+              ...s,
+              status:  s.status  ?? "present",   // default to present
+              remarks: s.remarks ?? "",
+            }))
+          );
+        }
       })
       .catch(() => showToast("Failed to load students.", "error"))
       .finally(() => setLoadingStudents(false));
-  }, [selectedCourse, date, token, showToast]);
+  }, [selectedCourse, date, token, showToast, isOffDayDate]);
 
   // ── Load records when tab or filters change ───────────────────────────────
   const fetchRecords = useCallback(() => {
@@ -234,20 +284,46 @@ export default function Attendance() {
   ];
   const YEARS = Array.from({ length: 101 }, (_, i) => new Date().getFullYear() - i);
 
-  // Filter courses for current day dropdown selection
-  const todayDay = new Date().toLocaleDateString("en-US", { weekday: "long" });
-  const todayCourses = courses.filter((c) => {
-    if (Array.isArray(c.class_days)) return c.class_days.includes(todayDay);
+  // Helper to get weekday of any ISO date
+  const getWeekdayOfDate = (dateStr) => {
+    if (!dateStr) return "";
+    const parts = dateStr.split("-");
+    const d = new Date(parts[0], parts[1] - 1, parts[2]);
+    return d.toLocaleDateString("en-US", { weekday: "long" });
+  };
+
+  // Filter courses for currently selected day dropdown selection
+  const selectedDateDay = getWeekdayOfDate(date);
+  const dateCourses = courses.filter((c) => {
+    if (Array.isArray(c.class_days)) return c.class_days.includes(selectedDateDay);
     if (typeof c.class_days === "string") {
       try {
         const parsed = JSON.parse(c.class_days);
-        if (Array.isArray(parsed)) return parsed.includes(todayDay);
+        if (Array.isArray(parsed)) return parsed.includes(selectedDateDay);
       } catch (e) {
-        return c.class_days.includes(todayDay);
+        return c.class_days.includes(selectedDateDay);
       }
     }
     return false;
   });
+
+  const isTodayHoliday = offDaysData.holidays.includes(today());
+
+  const handleToggleTodayHoliday = async () => {
+    const todayStr = today();
+    try {
+      if (isTodayHoliday) {
+        await deleteHoliday(token, todayStr);
+      } else {
+        await postHoliday(token, todayStr);
+      }
+      const fresh = await getOffDays(token);
+      setOffDaysData(fresh);
+      showToast(isTodayHoliday ? "Unmarked today as holiday." : "Marked today as holiday.", "success");
+    } catch (err) {
+      showToast(err.message || "Failed to toggle holiday.", "error");
+    }
+  };
 
   // ─────────────────────────────────────────────────────────────────────────
   return (
@@ -259,14 +335,24 @@ export default function Attendance() {
           <p>Mark and track daily attendance for classes.</p>
         </div>
         {activeTab === "log" && (
-          <button
-            className="btn btn-primary"
-            onClick={handleSave}
-            disabled={saving || loadingStudents}
-          >
-            <i className={`fa-solid ${saving ? "fa-spinner fa-spin" : "fa-floppy-disk"}`} />
-            {saving ? "Saving…" : "Save Attendance"}
-          </button>
+          <div style={{ display: "flex", gap: 10 }}>
+            <button
+              className={`btn ${isTodayHoliday ? "btn-danger" : "btn-outline"}`}
+              style={{ fontSize: 13 }}
+              onClick={handleToggleTodayHoliday}
+            >
+              <i className={`fa-solid ${isTodayHoliday ? "fa-calendar-minus" : "fa-calendar-plus"}`} style={{ marginRight: 6 }} />
+              {isTodayHoliday ? "Unmark Holiday" : "Mark Today as Holiday"}
+            </button>
+            <button
+              className="btn btn-primary"
+              onClick={handleSave}
+              disabled={saving || loadingStudents || offDayInfo.isOff}
+            >
+              <i className={`fa-solid ${saving ? "fa-spinner fa-spin" : "fa-floppy-disk"}`} />
+              {saving ? "Saving…" : "Save Attendance"}
+            </button>
+          </div>
         )}
       </div>
 
@@ -275,6 +361,7 @@ export default function Attendance() {
         {[
           { key: "log",     icon: "fa-calendar-check", label: "Mark Attendance" },
           { key: "records", icon: "fa-table-list",      label: "View Records"   },
+          { key: "report",  icon: "fa-chart-pie",       label: "Student Report" },
         ].map(({ key, icon, label }) => (
           <button
             key={key}
@@ -316,7 +403,7 @@ export default function Attendance() {
                     onChange={(e) => { setSelectedCourse(e.target.value); }}
                   >
                     <option value="">— Select course —</option>
-                    {todayCourses.map((c) => (
+                    {dateCourses.map((c) => (
                       <option key={c.id} value={c.id}>{c.name}</option>
                     ))}
                   </select>
@@ -327,7 +414,7 @@ export default function Attendance() {
                     type="date"
                     className="form-control"
                     value={date}
-                    disabled
+                    onChange={(e) => setDate(e.target.value)}
                   />
                 </div>
               </div>
@@ -377,7 +464,13 @@ export default function Attendance() {
             </div>
 
             <div className="table-wrap">
-              {loadingStudents ? (
+              {offDayInfo.isOff ? (
+                <div className="empty-state" style={{ padding: "40px 20px" }}>
+                  <i className="fa-solid fa-calendar-xmark" style={{ fontSize: 48, color: "#3b82f6", marginBottom: 16 }} />
+                  <h3 style={{ margin: "0 0 8px 0" }}>📅 Off Day — {offDayInfo.reason}</h3>
+                  <p style={{ margin: 0, color: "var(--text-soft)" }}>No attendance required for this date.</p>
+                </div>
+              ) : loadingStudents ? (
                 <div className="empty-state">
                   <i className="fa-solid fa-spinner fa-spin" />
                   <p>Loading students…</p>
@@ -671,6 +764,10 @@ export default function Attendance() {
             )}
           </div>
         </>
+      )}
+
+      {activeTab === "report" && (
+        <StudentAttendanceReport />
       )}
 
       {/* Toast */}

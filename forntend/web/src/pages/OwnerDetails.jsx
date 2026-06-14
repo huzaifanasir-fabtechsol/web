@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { getHorseOwner, listHorses } from "../api/horseApi";
+import { getSystemSettings } from "../api/settingsApi";
 
 export default function OwnerDetails() {
   const { id } = useParams();
@@ -10,6 +11,7 @@ export default function OwnerDetails() {
 
   const [owner, setOwner] = useState(null);
   const [horses, setHorses] = useState([]);
+  const [systemSettings, setSystemSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -21,6 +23,11 @@ export default function OwnerDetails() {
       try {
         const ownerData = await getHorseOwner(accessToken, id);
         setOwner(ownerData);
+
+        if (ownerData.owner_type === 'Company Owned') {
+          const settingsData = await getSystemSettings(accessToken);
+          setSystemSettings(settingsData);
+        }
 
         // Fetch horses and filter for this owner
         const horseData = await listHorses(accessToken, { page_size: 1000 });
@@ -91,9 +98,11 @@ export default function OwnerDetails() {
             </div>
 
             <h3 style={{ fontSize: 20, fontWeight: 700, color: "var(--text-dark)", marginBottom: 4 }}>{owner.name}</h3>
-            <p style={{ fontSize: 13, color: "var(--text-soft)", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>
-              Joined {owner.joined_date}
-            </p>
+            {owner.owner_type !== 'Company Owned' && (
+              <p style={{ fontSize: 13, color: "var(--text-soft)", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>
+                Joined {owner.joined_date}
+              </p>
+            )}
             <div style={{ marginBottom: 24 }}>
               <span className={`pill ${owner.owner_type === 'Horse Care' ? 'pill-blue' : owner.owner_type === 'Company Owned' ? 'pill-green' : 'pill-orange'}`} style={{ fontSize: 12, padding: "4px 12px" }}>
                 {owner.owner_type || "Horse Care"}
@@ -128,19 +137,27 @@ export default function OwnerDetails() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
                 <div>
                   <span style={{ display: "block", fontSize: 11, color: "var(--text-soft)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.05em", marginBottom: 4 }}>Phone Number</span>
-                  <strong style={{ fontSize: 14, color: "var(--text-dark)" }}>{owner.phone}</strong>
+                  <strong style={{ fontSize: 14, color: "var(--text-dark)" }}>
+                    {owner.owner_type === 'Company Owned' ? (systemSettings?.contact_phone || "N/A") : owner.phone}
+                  </strong>
                 </div>
                 <div>
                   <span style={{ display: "block", fontSize: 11, color: "var(--text-soft)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.05em", marginBottom: 4 }}>Email Address</span>
-                  <strong style={{ fontSize: 14, color: "var(--text-dark)" }}>{owner.email}</strong>
+                  <strong style={{ fontSize: 14, color: "var(--text-dark)" }}>
+                    {owner.owner_type === 'Company Owned' ? (systemSettings?.contact_email || "N/A") : owner.email}
+                  </strong>
                 </div>
-                <div>
-                  <span style={{ display: "block", fontSize: 11, color: "var(--text-soft)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.05em", marginBottom: 4 }}>National CNIC</span>
-                  <strong style={{ fontSize: 14, color: "var(--text-dark)" }}>{owner.cnic}</strong>
-                </div>
+                {owner.owner_type !== 'Company Owned' && (
+                  <div>
+                    <span style={{ display: "block", fontSize: 11, color: "var(--text-soft)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.05em", marginBottom: 4 }}>National CNIC</span>
+                    <strong style={{ fontSize: 14, color: "var(--text-dark)" }}>{owner.cnic}</strong>
+                  </div>
+                )}
                 <div style={{ gridColumn: "span 2" }}>
                   <span style={{ display: "block", fontSize: 11, color: "var(--text-soft)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.05em", marginBottom: 4 }}>Residential Address</span>
-                  <span style={{ fontSize: 14, color: "var(--text-dark)", lineHeight: 1.5 }}>{owner.address || "No address provided."}</span>
+                  <span style={{ fontSize: 14, color: "var(--text-dark)", lineHeight: 1.5 }}>
+                    {owner.owner_type === 'Company Owned' ? (systemSettings?.business_address || "No address provided.") : (owner.address || "No address provided.")}
+                  </span>
                 </div>
               </div>
             </div>

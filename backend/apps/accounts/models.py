@@ -42,6 +42,8 @@ class SystemSettings(models.Model):
     contact_phone = models.CharField(max_length=50, default="+92 300 1234567")
     tax_vat_id = models.CharField(max_length=50, blank=True, default="")
     business_address = models.TextField(default="123 Riding Club Road, Lahore, Pakistan")
+    weekly_off_days = models.JSONField(default=list, blank=True)
+    holidays = models.JSONField(default=list, blank=True)
 
     smtp_host = models.CharField(max_length=255, default="smtp.gmail.com")
     smtp_port = models.IntegerField(default=587)

@@ -23,11 +23,12 @@ class HorseOwnerSerializer(serializers.ModelSerializer):
 class HorseSerializer(serializers.ModelSerializer):
     owner_name = serializers.CharField(source='owner.name', read_only=True)
     owner_email = serializers.CharField(source='owner.email', read_only=True)
+    owner_type = serializers.CharField(source='owner.owner_type', read_only=True)
 
     class Meta:
         model = Horse
         fields = [
-            'id', 'horse_name', 'owner', 'owner_name', 'owner_email',
+            'id', 'horse_name', 'owner', 'owner_name', 'owner_email', 'owner_type',
             'arrival_date', 'height', 'date_of_birth', 'color', 'breed',
             'gender', 'profile_photo', 'created_at', 'updated_at'
         ]

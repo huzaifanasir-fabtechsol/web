@@ -8,6 +8,8 @@ from .views import (
     ProfileView,
     ResetPasswordView,
     SystemSettingsView,
+    HolidayToggleView,
+    OffDaysView,
 )
 
 urlpatterns = [
@@ -18,4 +20,6 @@ urlpatterns = [
     path("profile/", ProfileView.as_view(), name="profile"),
     path("settings/", SystemSettingsView.as_view(), name="system-settings"),
     path("change-password/", ChangePasswordView.as_view(), name="change-password"),
+    path("holiday/", HolidayToggleView.as_view(), name="holiday-toggle"),
+    path("off-days/", OffDaysView.as_view(), name="off-days"),
 ]

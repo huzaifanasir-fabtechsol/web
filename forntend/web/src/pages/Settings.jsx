@@ -49,6 +49,8 @@ export default function Settings() {
     smtp_username: "",
     smtp_password: "",
     default_from_email: "",
+    weekly_off_days: [],
+    holidays: [],
   });
 
   // Logo state
@@ -90,6 +92,8 @@ export default function Settings() {
           smtp_username: data.smtp_username || "",
           smtp_password: "", // always blank (write-only on backend)
           default_from_email: data.default_from_email || "",
+          weekly_off_days: data.weekly_off_days || [],
+          holidays: data.holidays || [],
         });
         if (data.profile_picture_url) {
           setLogoPreview(data.profile_picture_url);
@@ -153,6 +157,10 @@ export default function Settings() {
       Object.entries(form).forEach(([key, val]) => {
         // Only send smtp_password if the user typed something
         if (key === "smtp_password" && !val) return;
+        if (key === "weekly_off_days" || key === "holidays") {
+          payload.append(key, JSON.stringify(val));
+          return;
+        }
         if (val !== undefined && val !== null) payload.append(key, val);
       });
       if (logoFile) payload.append("profile_picture", logoFile);
@@ -213,7 +221,7 @@ export default function Settings() {
           <h2>System Settings</h2>
           <p>Configure your riding school application preferences.</p>
         </div>
-        {activeTab === "profile" && (
+        {(activeTab === "profile" || activeTab === "attendance") && (
           <button
             className="btn btn-primary"
             onClick={handleSaveSettings}
@@ -241,6 +249,13 @@ export default function Settings() {
             onClick={() => setActiveTab("profile")}
           >
             <i className="fa-solid fa-building"></i> School Profile
+          </div>
+          <div
+            className={`nav-item${activeTab === "attendance" ? " active" : ""}`}
+            style={{ marginBottom: 4 }}
+            onClick={() => setActiveTab("attendance")}
+          >
+            <i className="fa-solid fa-calendar-days"></i> Attendance Settings
           </div>
           <div
             className={`nav-item${activeTab === "security" ? " active" : ""}`}
@@ -522,6 +537,161 @@ export default function Settings() {
                 </div>
               </div>
             </>
+          )}
+
+          {/* ── Attendance Settings Tab ── */}
+          {activeTab === "attendance" && (
+            <div className="card">
+              <div className="card-header">
+                <div className="card-header-left">
+                  <div className="card-icon icon-teal">
+                    <i className="fa-solid fa-calendar-days"></i>
+                  </div>
+                  <div>
+                    <div className="card-title">Attendance Settings</div>
+                    <div className="card-sub">Configure school off days and holidays</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="card-body">
+                {loading ? (
+                  <div style={{ padding: 20, textAlign: "center" }}>
+                    <i className="fa-solid fa-spinner fa-spin"></i> Loading...
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+                    {/* Weekly Off Days */}
+                    <div>
+                      <h4 style={{ marginBottom: 12 }}>Weekly Off Days</h4>
+                      <p style={{ fontSize: 13, color: "var(--text-soft)", marginBottom: 16 }}>
+                        Select the days of the week when the riding school is closed. No attendance will be marked on these days.
+                      </p>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
+                        {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day) => {
+                          const checked = form.weekly_off_days.includes(day);
+                          return (
+                            <label key={day} style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", userSelect: "none" }}>
+                              <input
+                                type="checkbox"
+                                checked={checked}
+                                onChange={(e) => {
+                                  let updated = [...form.weekly_off_days];
+                                  if (e.target.checked) {
+                                    if (!updated.includes(day)) updated.push(day);
+                                  } else {
+                                    updated = updated.filter((d) => d !== day);
+                                  }
+                                  setForm((prev) => ({ ...prev, weekly_off_days: updated }));
+                                }}
+                                style={{ width: 16, height: 16 }}
+                              />
+                              <span style={{ fontSize: 14 }}>{day}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div style={{ height: 1, background: "var(--border)" }} />
+
+                    {/* Holidays Calendar */}
+                    <div>
+                      <h4 style={{ marginBottom: 12 }}>School Holidays</h4>
+                      <p style={{ fontSize: 13, color: "var(--text-soft)", marginBottom: 16 }}>
+                        Add specific calendar dates to mark them as holidays.
+                      </p>
+
+                      {/* Add Holiday Form */}
+                      <div style={{ display: "flex", gap: 12, alignItems: "flex-end", marginBottom: 20 }}>
+                        <div className="form-group" style={{ marginBottom: 0 }}>
+                          <label className="form-label">Select Date</label>
+                          <input
+                            type="date"
+                            className="form-control"
+                            id="holiday-date-picker"
+                            style={{ width: 220 }}
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          className="btn btn-outline"
+                          onClick={() => {
+                            const input = document.getElementById("holiday-date-picker");
+                            const dateVal = input?.value;
+                            if (!dateVal) {
+                              showToast("Please select a date.", "error");
+                              return;
+                            }
+                            if (form.holidays.includes(dateVal)) {
+                              showToast("This date is already marked as a holiday.", "info");
+                              return;
+                            }
+                            const updated = [...form.holidays, dateVal].sort();
+                            setForm((prev) => ({ ...prev, holidays: updated }));
+                            if (input) input.value = "";
+                            showToast(`Added ${dateVal} to holidays. Remember to save settings.`, "success");
+                          }}
+                        >
+                          <i className="fa-solid fa-plus" style={{ marginRight: 6 }}></i> Mark as Holiday
+                        </button>
+                      </div>
+
+                      {/* Holidays List */}
+                      {form.holidays.length === 0 ? (
+                        <div style={{ padding: "16px 20px", background: "#f9fafb", borderRadius: 8, border: "1px dashed var(--border)", textAlign: "center", color: "var(--text-soft)", fontSize: 13 }}>
+                          No holidays configured yet.
+                        </div>
+                      ) : (
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, maxHeight: 200, overflowY: "auto", padding: 4 }}>
+                          {form.holidays.map((hDate) => (
+                            <div
+                              key={hDate}
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: 8,
+                                padding: "6px 12px",
+                                background: "#eff6ff",
+                                border: "1px solid #bfdbfe",
+                                borderRadius: 20,
+                                fontSize: 13,
+                                color: "#1e40af",
+                                fontWeight: 500,
+                              }}
+                            >
+                              <span>{hDate}</span>
+                              <button
+                                type="button"
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  color: "#dc2626",
+                                  cursor: "pointer",
+                                  padding: 0,
+                                  fontSize: 14,
+                                  lineHeight: 1,
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                }}
+                                onClick={() => {
+                                  const updated = form.holidays.filter((h) => h !== hDate);
+                                  setForm((prev) => ({ ...prev, holidays: updated }));
+                                  showToast(`Removed ${hDate}. Remember to save settings.`, "success");
+                                }}
+                              >
+                                &times;
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           )}
 
           {/* ── Security Tab ── */}

@@ -1,7 +1,19 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { getStudent } from "../api/courseStudentApi";
+import { getStudent, getStudentEnrollments } from "../api/courseStudentApi";
+
+const STATUS_PILL = {
+  active: "pill-blue",
+  passed: "pill-green",
+};
+
+function formatDate(value) {
+  if (!value) return "—";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return value;
+  return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+}
 
 export default function StudentDetails() {
   const { id } = useParams();
@@ -9,6 +21,8 @@ export default function StudentDetails() {
   const { accessToken } = useAuth();
 
   const [student, setStudent] = useState(null);
+  const [enrollments, setEnrollments] = useState([]);
+  const [enrollmentsError, setEnrollmentsError] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -17,9 +31,17 @@ export default function StudentDetails() {
       if (!accessToken || !id) return;
       setLoading(true);
       setError("");
+      setEnrollmentsError("");
       try {
-        const data = await getStudent(accessToken, id);
-        setStudent(data);
+        const [studentData, enrollmentData] = await Promise.all([
+          getStudent(accessToken, id),
+          getStudentEnrollments(accessToken, id).catch((err) => {
+            setEnrollmentsError(err.message || "Failed to load enrolled courses.");
+            return { results: [] };
+          }),
+        ]);
+        setStudent(studentData);
+        setEnrollments(enrollmentData?.results || []);
       } catch (err) {
         setError(err.message || "Failed to load student details.");
       } finally {
@@ -181,6 +203,71 @@ export default function StudentDetails() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Enrolled Courses */}
+      <div className="card" style={{ marginTop: 24 }}>
+        <div className="card-header">
+          <div className="card-header-left">
+            <div className="card-icon icon-green">
+              <i className="fa-solid fa-graduation-cap"></i>
+            </div>
+            <div>
+              <h4 className="card-title">Enrolled Courses</h4>
+              <span className="card-sub">
+                {enrollments.length
+                  ? `${enrollments.length} course${enrollments.length === 1 ? "" : "s"} on record`
+                  : "Courses this student is enrolled in"}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div className="card-body" style={{ padding: 0 }}>
+          {enrollmentsError ? (
+            <div className="alert alert-error" style={{ margin: 16 }}>
+              <i className="fa-solid fa-circle-exclamation"></i> {enrollmentsError}
+            </div>
+          ) : enrollments.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "32px", color: "var(--text-soft)" }}>
+              <i className="fa-solid fa-book-open" style={{ fontSize: 28, marginBottom: 10, opacity: 0.5 }}></i>
+              <p>This student isn't enrolled in any courses yet.</p>
+            </div>
+          ) : (
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Course</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {enrollments.map((e) => (
+                    <tr key={e.id}>
+                      <td>
+                        <strong style={{ color: "var(--text-dark)" }}>{e.course_name}</strong>
+                        {e.duration_months ? (
+                          <span style={{ display: "block", fontSize: 12, color: "var(--text-soft)" }}>
+                            {e.duration_months} month{e.duration_months === 1 ? "" : "s"}
+                          </span>
+                        ) : null}
+                      </td>
+                      <td>{formatDate(e.start_date)}</td>
+                      <td>{formatDate(e.end_date)}</td>
+                      <td>
+                        <span className={`pill ${STATUS_PILL[e.status] || "pill-gray"}`} style={{ fontSize: 11.5 }}>
+                          {e.status_display || e.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>

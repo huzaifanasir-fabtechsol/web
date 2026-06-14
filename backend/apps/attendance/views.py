@@ -246,12 +246,31 @@ class CourseStudentsForAttendanceView(APIView):
         else:
             att_date = datetime.date.today()
 
-        # Only active students enrolled in this course
-        enrolled_ids = CourseEnrollment.objects.filter(
-            course=course
-        ).values_list('student_id', flat=True)
+        # Check for off days or holidays
+        from apps.accounts.models import SystemSettings
+        sys_settings = SystemSettings.get_settings()
+        weekday_name = att_date.strftime('%A')
+        
+        if weekday_name in (sys_settings.weekly_off_days or []):
+            return Response({
+                'is_off_day': True,
+                'reason': weekday_name,
+            })
+            
+        if str(att_date) in (sys_settings.holidays or []):
+            return Response({
+                'is_off_day': True,
+                'reason': 'Holiday',
+            })
+
+        # Only active students enrolled in this course with active enrollment status
+        enrollments = CourseEnrollment.objects.filter(course=course)
+        active_student_ids = [
+            e.student_id for e in enrollments
+            if e.effective_status(as_of=att_date) == CourseEnrollment.STATUS_ACTIVE
+        ]
         students = StudentProfile.objects.filter(
-            pk__in=enrolled_ids, is_active=True
+            pk__in=active_student_ids, is_active=True
         ).order_by('name')
 
         # Existing attendance records for this course/date (one query)
@@ -281,4 +300,132 @@ class CourseStudentsForAttendanceView(APIView):
             'course_name': course.name,
             'date':        str(att_date),
             'students':    result,
+        })
+
+
+class StudentMonthlyAttendanceReportView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        import calendar
+        student_id = request.query_params.get('student_id', '').strip()
+        course_id = request.query_params.get('course_id', '').strip()
+        month_str = request.query_params.get('month', '').strip()
+        year_str = request.query_params.get('year', '').strip()
+
+        if not student_id:
+            return Response({'detail': 'student_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            student = StudentProfile.objects.get(pk=student_id)
+        except StudentProfile.DoesNotExist:
+            return Response({'detail': 'Student not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if not course_id:
+            return Response({'detail': 'course_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            course = Course.objects.get(pk=course_id)
+        except Course.DoesNotExist:
+            return Response({'detail': 'Course not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        now = datetime.date.today()
+        try:
+            month = int(month_str) if month_str else now.month
+            if not (1 <= month <= 12):
+                raise ValueError
+        except ValueError:
+            return Response({'detail': 'Invalid month.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            year = int(year_str) if year_str else now.year
+            if not (2000 <= year <= 2100):
+                raise ValueError
+        except ValueError:
+            return Response({'detail': 'Invalid year.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Get system settings for off-days and holidays
+        from apps.accounts.models import SystemSettings
+        sys_settings = SystemSettings.get_settings()
+        weekly_off_days = sys_settings.weekly_off_days or []
+        holidays = sys_settings.holidays or []
+
+        # Find attendance records for this student and month/year
+        last_day = calendar.monthrange(year, month)[1]
+        start_date = datetime.date(year, month, 1)
+        end_date = datetime.date(year, month, last_day)
+
+        attendances = Attendance.objects.filter(
+            student=student,
+            course=course,
+            date__range=(start_date, end_date)
+        ).select_related('course')
+
+        # Map date to attendance status
+        att_map = {att.date: att for att in attendances}
+
+        # Build day_view
+        day_view = []
+        for d in range(1, last_day + 1):
+            day_date = datetime.date(year, month, d)
+            weekday_name = day_date.strftime('%A')
+
+            if (weekday_name in weekly_off_days) or (str(day_date) in holidays):
+                day_status = "off_day"
+            elif day_date in att_map:
+                att_record = att_map[day_date]
+                if att_record.status in ['present', 'late']:
+                    day_status = "present"
+                else:
+                    day_status = "absent"
+            else:
+                day_status = "no_class"
+
+            day_view.append({
+                "day": d,
+                "status": day_status
+            })
+
+        # Build records list
+        records_data = []
+        days_present = 0
+        days_absent = 0
+
+        for att in attendances:
+            records_data.append({
+                "date": str(att.date),
+                "course": att.course.name,
+                "status": att.status
+            })
+            if att.status in ['present', 'late']:
+                days_present += 1
+            elif att.status == 'absent':
+                days_absent += 1
+
+        total_classes = days_present + days_absent
+        attendance_rate = round((days_present / total_classes) * 100) if total_classes > 0 else 0
+
+        # Student info
+        pic_url = None
+        if student.profile_picture:
+            pic_url = request.build_absolute_uri(student.profile_picture.url)
+
+        student_data = {
+            "name": student.name,
+            "id_display": f'STU-{student.pk:03d}',
+            "experience_level": student.experience_level,
+            "phone_number": student.phone_number,
+            "profile_picture": pic_url
+        }
+
+        return Response({
+            "student": student_data,
+            "summary": {
+                "total_classes": total_classes,
+                "days_present": days_present,
+                "days_absent": days_absent,
+                "attendance_rate": attendance_rate
+            },
+            "day_view": day_view,
+            "records": records_data
         })

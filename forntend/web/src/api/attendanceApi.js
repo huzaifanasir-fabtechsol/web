@@ -84,3 +84,15 @@ export function getCourseStudentsForAttendance(token, courseId, date) {
 export function bulkLogAttendance(token, payload) {
   return authFetch(`${BASE_URL}/attendance/log/`, "POST", payload, token);
 }
+
+/**
+ * GET /api/attendance/student-report/
+ * Filters: student_id, month, year
+ */
+export function getStudentAttendanceReport(token, studentId, courseId, month, year) {
+  const params = new URLSearchParams({ student_id: studentId });
+  if (courseId) params.set("course_id", courseId);
+  if (month) params.set("month", month);
+  if (year) params.set("year", year);
+  return authFetch(`${BASE_URL}/attendance/student-report/?${params}`, "GET", null, token);
+}
