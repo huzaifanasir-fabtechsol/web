@@ -5,7 +5,7 @@ import { getStudent, getStudentEnrollments } from "../api/courseStudentApi";
 
 const STATUS_PILL = {
   active: "pill-blue",
-  passed: "pill-green",
+  passed: "pill-orange",
 };
 
 function formatDate(value) {

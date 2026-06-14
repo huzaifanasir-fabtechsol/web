@@ -6,7 +6,7 @@ import {
   updateTransaction,
   getTransaction,
 } from "../../api/billingApi";
-import { listStudents, listCourses } from "../../api/courseStudentApi";
+import { listStudents, getStudentEnrollments } from "../../api/courseStudentApi";
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -43,8 +43,11 @@ export default function AddTransaction() {
 
   // ── Dropdown data ─────────────────────────────────────────────────────────
   const [students, setStudents] = useState([]);
-  const [courses, setCourses] = useState([]);
+  const [enrolledCourses, setEnrolledCourses] = useState([]);
+  const [loadingEnrollments, setLoadingEnrollments] = useState(false);
   const [studentSearch, setStudentSearch] = useState("");
+
+  const initialLoadRef = useRef(isEdit);
 
   // ── Toast ─────────────────────────────────────────────────────────────────
   const [toast, setToast] = useState({ show: false, msg: "", type: "success" });
@@ -62,12 +65,39 @@ export default function AddTransaction() {
       .catch(() => { });
   }, [accessToken, studentSearch]);
 
-  // ── Load all courses ──────────────────────────────────────────────────────
+  // ── Load enrolled courses when student changes ────────────────────────────
   useEffect(() => {
-    listCourses(accessToken, { page_size: 100 })
-      .then((d) => setCourses(d.results || []))
-      .catch(() => { });
-  }, [accessToken]);
+    if (initialLoadRef.current) {
+      if (form.student) {
+        setLoadingEnrollments(true);
+        getStudentEnrollments(accessToken, form.student)
+          .then((d) => setEnrolledCourses(d.results || []))
+          .catch(() => {})
+          .finally(() => setLoadingEnrollments(false));
+      }
+      return;
+    }
+
+    // Interactive change: Reset course choice when student changes
+    setForm((f) => ({ ...f, course: "" }));
+
+    if (!form.student) {
+      setEnrolledCourses([]);
+      return;
+    }
+
+    setLoadingEnrollments(true);
+    getStudentEnrollments(accessToken, form.student)
+      .then((d) => {
+        setEnrolledCourses(d.results || []);
+      })
+      .catch(() => {
+        showToast("Failed to load enrolled courses.", "error");
+      })
+      .finally(() => {
+        setLoadingEnrollments(false);
+      });
+  }, [accessToken, form.student, showToast]);
 
   // ── Load existing transaction when editing ────────────────────────────────
   useEffect(() => {
@@ -87,6 +117,9 @@ export default function AddTransaction() {
           payment_method: txn.payment_method,
           card_or_account_number: txn.card_or_account_number || "",
         });
+        setTimeout(() => {
+          initialLoadRef.current = false;
+        }, 0);
       })
       .catch((e) => showToast(e.message || "Failed to load transaction.", "error"))
       .finally(() => setLoading(false));
@@ -95,10 +128,10 @@ export default function AddTransaction() {
   // ── Auto-fill amount from selected course ────────────────────────────────
   useEffect(() => {
     if (form.fee_type === "Course Fee" && form.course) {
-      const c = courses.find((x) => String(x.id) === String(form.course));
+      const c = enrolledCourses.find((x) => String(x.course) === String(form.course));
       if (c) setForm((f) => ({ ...f, amount: String(c.fee) }));
     }
-  }, [form.course, form.fee_type, courses]);
+  }, [form.course, form.fee_type, enrolledCourses]);
 
   // ── Field change helpers ──────────────────────────────────────────────────
   const set = (field) => (e) => {
@@ -296,15 +329,38 @@ export default function AddTransaction() {
                     className={`form-control ${errors.course ? "is-invalid" : ""}`}
                     value={form.course}
                     onChange={set("course")}
+                    disabled={!form.student || loadingEnrollments || enrolledCourses.filter(c => c.course_is_active || String(c.course) === String(form.course)).length === 0}
                   >
-                    <option value="">— Select Course —</option>
-                    {courses.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name} — Rs. {parseFloat(c.fee).toLocaleString()}
-                      </option>
-                    ))}
+                    {!form.student ? (
+                      <option value="">— Select a student first —</option>
+                    ) : loadingEnrollments ? (
+                      <option value="">Loading enrolled courses...</option>
+                    ) : enrolledCourses.filter(c => c.course_is_active || String(c.course) === String(form.course)).length === 0 ? (
+                      <option value="">— No active enrolled courses —</option>
+                    ) : (
+                      <>
+                        <option value="">— Select Course —</option>
+                        {enrolledCourses
+                          .filter(c => c.course_is_active || String(c.course) === String(form.course))
+                          .map((c) => (
+                            <option key={c.course} value={c.course}>
+                              {c.course_name} — Rs. {parseFloat(c.fee).toLocaleString()}
+                            </option>
+                          ))}
+                      </>
+                    )}
                   </select>
                   {errors.course && <div className="field-error">{errors.course}</div>}
+                  {form.student && !loadingEnrollments && enrolledCourses.length === 0 && (
+                    <div className="field-error" style={{ marginTop: 4 }}>
+                      This student is not enrolled in any course.
+                    </div>
+                  )}
+                  {form.student && !loadingEnrollments && enrolledCourses.length > 0 && enrolledCourses.filter(c => c.course_is_active || String(c.course) === String(form.course)).length === 0 && (
+                    <div className="field-error" style={{ marginTop: 4 }}>
+                      This student is not enrolled in any active course.
+                    </div>
+                  )}
                   {form.course && (
                     <div style={{ fontSize: 12, color: "var(--accent2)", marginTop: 4, fontWeight: 600 }}>
                       <i className="fa-solid fa-circle-check" style={{ marginRight: 5 }} />

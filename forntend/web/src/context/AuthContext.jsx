@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { refreshToken as apiRefreshToken } from "../api/auth";
+import { onTokenRefreshed } from "../api/apiClient";
 
 const AuthContext = createContext(null);
 
@@ -60,6 +61,12 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     silentRefresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    onTokenRefreshed((newToken) => {
+      setAccessToken(newToken);
+    });
   }, []);
 
   return (

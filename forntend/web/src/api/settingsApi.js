@@ -1,31 +1,6 @@
 import { API_URL } from "./config";
+import { authFetch } from "./apiClient";
 const BASE_URL = `${API_URL}/api/accounts`;
-
-/** Authenticated fetch helper — supports both JSON and FormData */
-async function authFetch(endpoint, method = "GET", body = null, token = null, isFormData = false) {
-  const headers = {};
-  if (!isFormData) headers["Content-Type"] = "application/json";
-  if (token) headers["Authorization"] = `Bearer ${token}`;
-
-  const opts = { method, headers };
-  if (body) opts.body = isFormData ? body : JSON.stringify(body);
-
-  const res = await fetch(`${BASE_URL}${endpoint}`, opts);
-
-  // 204 No Content
-  if (res.status === 204) return null;
-
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const message =
-      data?.detail ||
-      data?.non_field_errors?.[0] ||
-      Object.values(data).flat()[0] ||
-      "Request failed.";
-    throw new Error(message);
-  }
-  return data;
-}
 
 /**
  * GET /api/accounts/settings/
@@ -33,7 +8,7 @@ async function authFetch(endpoint, method = "GET", body = null, token = null, is
  * smtp_password is NOT returned (write-only on backend).
  */
 export function getSystemSettings(token) {
-  return authFetch("/settings/", "GET", null, token);
+  return authFetch(`${BASE_URL}/settings/`, "GET", null, token);
 }
 
 /**
@@ -43,7 +18,7 @@ export function getSystemSettings(token) {
  */
 export function updateSystemSettings(token, data) {
   const isFormData = data instanceof FormData;
-  return authFetch("/settings/", "PATCH", data, token, isFormData);
+  return authFetch(`${BASE_URL}/settings/`, "PATCH", data, token, isFormData);
 }
 
 /**
@@ -51,7 +26,7 @@ export function updateSystemSettings(token, data) {
  * Body: { current_password, new_password, confirm_password }
  */
 export function changePassword(token, { current_password, new_password, confirm_password }) {
-  return authFetch("/change-password/", "POST", { current_password, new_password, confirm_password }, token);
+  return authFetch(`${BASE_URL}/change-password/`, "POST", { current_password, new_password, confirm_password }, token);
 }
 
 /**
@@ -59,7 +34,7 @@ export function changePassword(token, { current_password, new_password, confirm_
  * Body: { date }
  */
 export function postHoliday(token, date) {
-  return authFetch("/holiday/", "POST", { date }, token);
+  return authFetch(`${BASE_URL}/holiday/`, "POST", { date }, token);
 }
 
 /**
@@ -67,12 +42,12 @@ export function postHoliday(token, date) {
  * Body: { date }
  */
 export function deleteHoliday(token, date) {
-  return authFetch("/holiday/", "DELETE", { date }, token);
+  return authFetch(`${BASE_URL}/holiday/`, "DELETE", { date }, token);
 }
 
 /**
  * GET /api/accounts/off-days/
  */
 export function getOffDays(token) {
-  return authFetch("/off-days/", "GET", null, token);
+  return authFetch(`${BASE_URL}/off-days/`, "GET", null, token);
 }

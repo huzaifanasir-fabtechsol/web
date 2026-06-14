@@ -26,6 +26,13 @@ class CourseListCreateView(APIView):
                 Q(fee__icontains=search)
             )
 
+        # Filter by status (is_active)
+        is_active_param = request.query_params.get('is_active', '').strip().lower()
+        if is_active_param == 'true':
+            qs = qs.filter(is_active=True)
+        elif is_active_param == 'false':
+            qs = qs.filter(is_active=False)
+
         # Filter by class_days (comma-separated list of days)
         class_days = request.query_params.get('class_days', '').strip()
         if class_days:
@@ -127,6 +134,11 @@ class CourseEnrollmentView(APIView):
             CourseEnrollment.objects.filter(course=course).values_list('student_id', flat=True)
         )
 
+        # Count active vs passed enrollments (considering active students only)
+        active_enrollments = CourseEnrollment.objects.filter(course=course, student__is_active=True)
+        active_count = sum(1 for e in active_enrollments if e.effective_status() == 'active')
+        passed_count = sum(1 for e in active_enrollments if e.effective_status() == 'passed')
+
         if tab == 'assigned':
             qs = StudentProfile.objects.filter(pk__in=enrolled_ids, is_active=True)
         elif tab == 'unassigned':
@@ -147,11 +159,22 @@ class CourseEnrollmentView(APIView):
         end = start + page_size
         students = qs[start:end]
 
+        enrollments_map = {
+            e.student_id: e for e in CourseEnrollment.objects.filter(course=course).select_related('student')
+        }
+
         result = []
         for s in students:
             pic_url = None
             if s.profile_picture:
                 pic_url = request.build_absolute_uri(s.profile_picture.url)
+            
+            enrollment = enrollments_map.get(s.pk)
+            is_enrolled = enrollment is not None
+            enrollment_status = enrollment.effective_status() if is_enrolled else None
+            enrollment_start = str(enrollment.start_date) if is_enrolled else None
+            enrollment_end = str(enrollment.end_date) if is_enrolled else None
+
             result.append({
                 'id': s.pk,
                 'name': s.name,
@@ -159,7 +182,10 @@ class CourseEnrollmentView(APIView):
                 'phone_number': s.phone_number,
                 'experience_level': s.experience_level,
                 'is_active': s.is_active,
-                'is_enrolled': s.pk in enrolled_ids,
+                'is_enrolled': is_enrolled,
+                'enrollment_status': enrollment_status,
+                'enrollment_start': enrollment_start,
+                'enrollment_end': enrollment_end,
                 'profile_picture': pic_url,
             })
 
@@ -168,6 +194,8 @@ class CourseEnrollmentView(APIView):
             'course_name': course.name,
             'tab': tab,
             'enrolled_count': len(enrolled_ids),
+            'active_count': active_count,
+            'passed_count': passed_count,
             'count': total,
             'page': page,
             'page_size': page_size,
@@ -177,6 +205,7 @@ class CourseEnrollmentView(APIView):
 
     def post(self, request, pk):
         """Bulk enroll students into a course."""
+        import datetime
         course = self._get_course(pk)
         if not course:
             return Response({'detail': 'Course not found.'}, status=status.HTTP_404_NOT_FOUND)
@@ -195,10 +224,18 @@ class CourseEnrollmentView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        start_date_str = request.data.get('start_date', '').strip()
+        defaults = {}
+        if start_date_str:
+            try:
+                defaults['start_date'] = datetime.date.fromisoformat(start_date_str)
+            except ValueError:
+                return Response({'detail': 'Invalid start_date format. Use YYYY-MM-DD.'}, status=status.HTTP_400_BAD_REQUEST)
+
         # Bulk create (ignore duplicates)
         created_count = 0
         for sid in valid_ids:
-            _, created = CourseEnrollment.objects.get_or_create(course=course, student_id=sid)
+            _, created = CourseEnrollment.objects.get_or_create(course=course, student_id=sid, defaults=defaults)
             if created:
                 created_count += 1
 

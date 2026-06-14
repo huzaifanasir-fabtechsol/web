@@ -41,6 +41,26 @@ function useDebouncedValue(value, delay = 400) {
   return debounced;
 }
 
+function addMonths(dateStr, months) {
+  if (!dateStr || !months) return "";
+  const parts = dateStr.split("-");
+  if (parts.length !== 3) return "";
+  let year = parseInt(parts[0], 10);
+  let month = parseInt(parts[1], 10); // 1-indexed
+  let day = parseInt(parts[2], 10);
+
+  let monthIndex = month - 1 + months;
+  year = year + Math.floor(monthIndex / 12);
+  month = (monthIndex % 12) + 1;
+
+  const lastDay = new Date(year, month, 0).getDate();
+  day = Math.min(day, lastDay);
+
+  const mm = String(month).padStart(2, "0");
+  const dd = String(day).padStart(2, "0");
+  return `${year}-${mm}-${dd}`;
+}
+
 // ── Main Component ─────────────────────────────────────────────────────────────
 export default function CourseEnrollment() {
   const { id } = useParams();
@@ -60,6 +80,9 @@ export default function CourseEnrollment() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [enrolledCount, setEnrolledCount] = useState(0);
+  const [activeCount, setActiveCount] = useState(0);
+  const [passedCount, setPassedCount] = useState(0);
+  const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]);
 
   // Selection
   const [selected, setSelected] = useState(new Set());
@@ -103,6 +126,8 @@ export default function CourseEnrollment() {
       setTotalPages(data.total_pages);
       setTotalCount(data.count);
       setEnrolledCount(data.enrolled_count);
+      setActiveCount(data.active_count || 0);
+      setPassedCount(data.passed_count || 0);
     } catch (e) {
       showToast("Failed to load students.", "error");
     } finally {
@@ -136,7 +161,7 @@ export default function CourseEnrollment() {
     if (selected.size === 0) return;
     setActionLoading(true);
     try {
-      const res = await bulkEnrollStudents(accessToken, id, [...selected]);
+      const res = await bulkEnrollStudents(accessToken, id, [...selected], startDate);
       showToast(res.detail || `${res.created} student(s) enrolled.`, "success");
       setSelected(new Set());
       setConfirmAction(null);
@@ -207,8 +232,11 @@ export default function CourseEnrollment() {
           </div>
         </div>
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          <span className="pill pill-purple" style={{ fontSize: 13, padding: "6px 14px" }}>
-            <i className="fa-solid fa-users" /> {enrolledCount} Enrolled
+          <span className="pill pill-green" style={{ fontSize: 13, padding: "6px 14px" }}>
+            <i className="fa-solid fa-user-check" style={{ marginRight: 6 }} /> {activeCount} Active
+          </span>
+          <span className="pill pill-orange" style={{ fontSize: 13, padding: "6px 14px" }}>
+            <i className="fa-solid fa-user-clock" style={{ marginRight: 6 }} /> {passedCount} Passed
           </span>
         </div>
       </div>
@@ -372,10 +400,22 @@ export default function CourseEnrollment() {
                     </td>
                     <td>
                       {s.is_enrolled ? (
-                        <span className="pill pill-green" style={{ fontSize: 11 }}>
-                          <i className="fa-solid fa-check" style={{ fontSize: 9, marginRight: 4 }} />
-                          Enrolled
-                        </span>
+                        <div>
+                          {s.enrollment_status === "passed" ? (
+                            <span className="pill pill-orange" style={{ fontSize: 11 }}>
+                              <i className="fa-solid fa-user-clock" style={{ fontSize: 9, marginRight: 4 }} />
+                              Passed
+                            </span>
+                          ) : (
+                            <span className="pill pill-green" style={{ fontSize: 11 }}>
+                              <i className="fa-solid fa-check" style={{ fontSize: 9, marginRight: 4 }} />
+                              Active
+                            </span>
+                          )}
+                          <div style={{ fontSize: 10, color: "var(--text-soft)", marginTop: 4 }}>
+                            {s.enrollment_start} to {s.enrollment_end}
+                          </div>
+                        </div>
                       ) : (
                         <span className="pill pill-gray" style={{ fontSize: 11 }}>
                           Not Enrolled
@@ -400,14 +440,9 @@ export default function CourseEnrollment() {
                             className="act-btn act-view"
                             title="Enroll in Course"
                             style={{ color: "#16a34a" }}
-                            onClick={async () => {
-                              try {
-                                await bulkEnrollStudents(accessToken, id, [s.id]);
-                                showToast(`${s.name} enrolled successfully.`, "success");
-                                fetchEnrollment();
-                              } catch (e) {
-                                showToast(e.message, "error");
-                              }
+                            onClick={() => {
+                              setSelected(new Set([s.id]));
+                              setConfirmAction("enroll");
                             }}
                           >
                             <i className="fa-solid fa-user-plus" />
@@ -467,11 +502,48 @@ export default function CourseEnrollment() {
             </button>
           </div>
           <div className="modal-body">
-            <p style={{ color: "var(--text-secondary)", lineHeight: 1.6 }}>
+            <p style={{ color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: 16 }}>
               {confirmAction === "enroll"
                 ? `Are you sure you want to enroll ${selected.size} student${selected.size !== 1 ? "s" : ""} into "${course?.name}"?`
                 : `Are you sure you want to remove ${selected.size} student${selected.size !== 1 ? "s" : ""} from "${course?.name}"? They will no longer appear in attendance for this course.`}
             </p>
+            {confirmAction === "enroll" && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 12, borderTop: "1px solid var(--border)", paddingTop: 16 }}>
+                <div className="form-group">
+                  <label className="form-label" style={{ fontSize: 12, fontWeight: 600 }}>Enrollment Start Date</label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                  <div className="form-group">
+                    <label className="form-label" style={{ fontSize: 12, fontWeight: 600 }}>Course Duration</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={`${course?.duration_months || 0} Month${course?.duration_months !== 1 ? "s" : ""}`}
+                      readOnly
+                      disabled
+                      style={{ background: "#f3f4f6", cursor: "not-allowed" }}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label" style={{ fontSize: 12, fontWeight: 600 }}>End Date (Computed)</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={addMonths(startDate, course?.duration_months || 0)}
+                      readOnly
+                      disabled
+                      style={{ background: "#f3f4f6", fontWeight: 600, cursor: "not-allowed" }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
           <div className="modal-footer">
             <button className="btn btn-outline" onClick={() => setConfirmAction(null)} disabled={actionLoading}>

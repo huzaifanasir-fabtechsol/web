@@ -4,12 +4,20 @@ from .models import Course, CourseEnrollment
 
 class CourseSerializer(serializers.ModelSerializer):
     enrolled_count = serializers.IntegerField(read_only=True, default=0)
+    active_count = serializers.SerializerMethodField()
+    passed_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Course
         fields = ['id', 'name', 'duration_months', 'fee', 'class_time', 'class_days',
-                  'enrolled_count', 'created_at', 'updated_at']
+                  'enrolled_count', 'active_count', 'passed_count', 'is_active', 'created_at', 'updated_at']
         read_only_fields = ['id', 'created_at', 'updated_at']
+
+    def get_active_count(self, obj):
+        return sum(1 for e in obj.enrollments.filter(student__is_active=True) if e.effective_status() == 'active')
+
+    def get_passed_count(self, obj):
+        return sum(1 for e in obj.enrollments.filter(student__is_active=True) if e.effective_status() == 'passed')
 
     def validate_class_days(self, value):
         valid_days = {'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'}
@@ -24,6 +32,7 @@ class CourseSerializer(serializers.ModelSerializer):
 class StudentEnrollmentSerializer(serializers.ModelSerializer):
     """An enrollment from a student's perspective — for the student profile page."""
     course_name = serializers.CharField(source='course.name', read_only=True)
+    course_is_active = serializers.BooleanField(source='course.is_active', read_only=True)
     duration_months = serializers.IntegerField(source='course.duration_months', read_only=True)
     fee = serializers.DecimalField(source='course.fee', max_digits=10, decimal_places=2, read_only=True)
     end_date = serializers.DateField(read_only=True)
@@ -32,7 +41,7 @@ class StudentEnrollmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CourseEnrollment
-        fields = ['id', 'course', 'course_name', 'duration_months', 'fee',
+        fields = ['id', 'course', 'course_name', 'course_is_active', 'duration_months', 'fee',
                   'start_date', 'end_date', 'status', 'status_display']
 
     def get_status(self, obj):

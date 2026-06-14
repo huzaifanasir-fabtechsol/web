@@ -1,19 +1,6 @@
 import { API_URL } from "./config";
+import { authFetch } from "./apiClient";
 const BASE_URL = `${API_URL}/api`;
-
-async function authFetch(url, token) {
-  const res = await fetch(url, {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    throw new Error(data?.detail || "Request failed.");
-  }
-  return data;
-}
 
 /** GET /api/dashboard/summary */
 export function getDashboardSummary(token) {

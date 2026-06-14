@@ -14,7 +14,7 @@ export default function Sidebar() {
       <div className="sidebar-logo">
         <img src="/logo.png" alt="EquiManage Logo" style={{ width: "36px", height: "36px", objectFit: "contain" }} />
         <div>
-          <div className="logo-text">EquiManage</div>
+          <div className="logo-text">Abu Ali Horse</div>
           <div className="logo-sub">Riding School System</div>
         </div>
       </div>

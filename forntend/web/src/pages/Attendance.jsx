@@ -87,6 +87,7 @@ export default function Attendance() {
   const [filterYear, setFilterYear]   = useState(new Date().getFullYear());
   const [filterStatus, setFilterStatus] = useState("");
   const [filterCourse, setFilterCourse] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [loadingRecords, setLoadingRecords] = useState(false);
 
   // ── UI state ──────────────────────────────────────────────────────────────
@@ -146,6 +147,7 @@ export default function Attendance() {
         // Filter by today's day of the week initially
         const todayDay = new Date().toLocaleDateString("en-US", { weekday: "long" });
         const todayCourses = allCourses.filter((c) => {
+          if (!c.is_active) return false;
           if (Array.isArray(c.class_days)) return c.class_days.includes(todayDay);
           if (typeof c.class_days === "string") {
             try {
@@ -208,6 +210,7 @@ export default function Attendance() {
     };
     if (filterStatus) filters.status   = filterStatus;
     if (filterCourse) filters.course_id = filterCourse;
+    if (searchQuery)  filters.search    = searchQuery;
 
     listAttendance(token, filters)
       .then((r) => {
@@ -217,7 +220,7 @@ export default function Attendance() {
       })
       .catch(() => showToast("Failed to load records.", "error"))
       .finally(() => setLoadingRecords(false));
-  }, [token, filterMonth, filterYear, filterStatus, filterCourse, recPage, showToast]);
+  }, [token, filterMonth, filterYear, filterStatus, filterCourse, searchQuery, recPage, showToast]);
 
   useEffect(() => {
     if (activeTab === "records") fetchRecords();
@@ -295,6 +298,7 @@ export default function Attendance() {
   // Filter courses for currently selected day dropdown selection
   const selectedDateDay = getWeekdayOfDate(date);
   const dateCourses = courses.filter((c) => {
+    if (!c.is_active) return false;
     if (Array.isArray(c.class_days)) return c.class_days.includes(selectedDateDay);
     if (typeof c.class_days === "string") {
       try {
@@ -307,7 +311,9 @@ export default function Attendance() {
     return false;
   });
 
-  const isTodayHoliday = offDaysData.holidays.includes(today());
+  const todayWeekday = new Date().toLocaleDateString("en-US", { weekday: "long" });
+  const todayIsOff = (offDaysData.holidays || []).includes(today()) || (offDaysData.weekly_off_days || []).includes(todayWeekday);
+  const isTodayHoliday = (offDaysData.holidays || []).includes(today());
 
   const handleToggleTodayHoliday = async () => {
     const todayStr = today();
@@ -336,14 +342,16 @@ export default function Attendance() {
         </div>
         {activeTab === "log" && (
           <div style={{ display: "flex", gap: 10 }}>
-            <button
-              className={`btn ${isTodayHoliday ? "btn-danger" : "btn-outline"}`}
-              style={{ fontSize: 13 }}
-              onClick={handleToggleTodayHoliday}
-            >
-              <i className={`fa-solid ${isTodayHoliday ? "fa-calendar-minus" : "fa-calendar-plus"}`} style={{ marginRight: 6 }} />
-              {isTodayHoliday ? "Unmark Holiday" : "Mark Today as Holiday"}
-            </button>
+            {!todayIsOff && (
+              <button
+                className={`btn ${isTodayHoliday ? "btn-danger" : "btn-outline"}`}
+                style={{ fontSize: 13 }}
+                onClick={handleToggleTodayHoliday}
+              >
+                <i className={`fa-solid ${isTodayHoliday ? "fa-calendar-minus" : "fa-calendar-plus"}`} style={{ marginRight: 6 }} />
+                {isTodayHoliday ? "Unmark Holiday" : "Mark Today as Holiday"}
+              </button>
+            )}
             <button
               className="btn btn-primary"
               onClick={handleSave}
@@ -607,6 +615,17 @@ export default function Attendance() {
           {/* Filters */}
           <div className="table-card" style={{ marginBottom: 20 }}>
             <div className="table-toolbar" style={{ flexWrap: "wrap", gap: 10 }}>
+              {/* Search */}
+              <div className="table-search" style={{ width: 240 }}>
+                <i className="fa-solid fa-magnifying-glass" />
+                <input
+                  type="text"
+                  placeholder="Search student name..."
+                  value={searchQuery}
+                  onChange={(e) => { setSearchQuery(e.target.value); setRecPage(1); }}
+                />
+              </div>
+
               {/* Month */}
               <select
                 className="filter-select"

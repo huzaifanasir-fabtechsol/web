@@ -1,30 +1,6 @@
 import { API_URL } from "./config";
+import { authFetch } from "./apiClient";
 const BASE_URL = `${API_URL}/api`;
-
-/** Authenticated fetch helper */
-async function authFetch(url, method = "GET", body = null, token = null) {
-  const headers = { "Content-Type": "application/json" };
-  if (token) headers["Authorization"] = `Bearer ${token}`;
-
-  const opts = { method, headers };
-  if (body) opts.body = JSON.stringify(body);
-
-  const res = await fetch(url, opts);
-
-  // 204 No Content
-  if (res.status === 204) return null;
-
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const message =
-      data?.detail ||
-      data?.non_field_errors?.[0] ||
-      Object.values(data).flat()[0] ||
-      "Request failed.";
-    throw new Error(message);
-  }
-  return data;
-}
 
 // ── Transaction API ──────────────────────────────────────────────────────────
 

@@ -16,6 +16,7 @@ const EMPTY_FORM = {
   fee: "",
   class_time: "",
   class_days: [],
+  is_active: true,
 };
 
 function useDebouncedValue(value, delay = 400) {
@@ -37,6 +38,7 @@ export default function Courses() {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [filterDays, setFilterDays] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -63,6 +65,7 @@ export default function Courses() {
       const data = await listCourses(accessToken, {
         search: debouncedSearch,
         class_days: filterDays,
+        is_active: filterStatus,
         page,
         page_size: PAGE_SIZE,
       });
@@ -74,7 +77,7 @@ export default function Courses() {
     } finally {
       setLoading(false);
     }
-  }, [accessToken, debouncedSearch, filterDays, page]);
+  }, [accessToken, debouncedSearch, filterDays, filterStatus, page]);
 
   useEffect(() => {
     fetchCourses();
@@ -83,7 +86,7 @@ export default function Courses() {
   // Reset to page 1 when filters change
   useEffect(() => {
     setPage(1);
-  }, [debouncedSearch, filterDays]);
+  }, [debouncedSearch, filterDays, filterStatus]);
 
   // ── Modal helpers ──────────────────────────────────────────────────────────
 
@@ -103,6 +106,7 @@ export default function Courses() {
       fee: course.fee,
       class_time: course.class_time,
       class_days: course.class_days || [],
+      is_active: course.is_active,
     });
     setFormErrors({});
     setSaveError("");
@@ -157,6 +161,7 @@ export default function Courses() {
         ...form,
         duration_months: Number(form.duration_months),
         fee: Number(form.fee),
+        is_active: Boolean(form.is_active),
       };
       if (editingCourse) {
         await updateCourse(accessToken, editingCourse.id, payload);
@@ -237,6 +242,17 @@ export default function Courses() {
             ))}
           </select>
 
+          <select
+            id="course-filter-status"
+            className="filter-select"
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+          >
+            <option value="">All Statuses</option>
+            <option value="true">Active Only</option>
+            <option value="false">Inactive Only</option>
+          </select>
+
           <div className="tbl-count">
             {loading ? "Loading…" : `Showing ${startEntry}–${endEntry} of ${totalCount}`}
           </div>
@@ -251,6 +267,7 @@ export default function Courses() {
                 <th>Fee</th>
                 <th>Class Time</th>
                 <th>Class Days</th>
+                <th style={{ textAlign: "center" }}>Status</th>
                 <th style={{ textAlign: "center" }}>Enrolled</th>
                 <th style={{ textAlign: "center" }}>Actions</th>
               </tr>
@@ -258,13 +275,13 @@ export default function Courses() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: "center", padding: "32px", color: "var(--text-muted)" }}>
+                  <td colSpan={8} style={{ textAlign: "center", padding: "32px", color: "var(--text-muted)" }}>
                     <i className="fa-solid fa-spinner fa-spin"></i> Loading courses…
                   </td>
                 </tr>
               ) : courses.length === 0 ? (
                 <tr>
-                  <td colSpan={7} style={{ textAlign: "center", padding: "32px", color: "var(--text-muted)" }}>
+                  <td colSpan={8} style={{ textAlign: "center", padding: "32px", color: "var(--text-muted)" }}>
                     No courses found.
                   </td>
                 </tr>
@@ -285,15 +302,33 @@ export default function Courses() {
                       </div>
                     </td>
                     <td style={{ textAlign: "center" }}>
-                      <span
-                        className="pill pill-purple"
-                        style={{ fontSize: 12, cursor: "pointer" }}
-                        title="Manage Enrollment"
-                        onClick={() => navigate(`/courses/${course.id}/enrollment`)}
-                      >
-                        <i className="fa-solid fa-users" style={{ marginRight: 4 }} />
-                        {course.enrolled_count ?? 0}
+                      <span className={`pill ${course.is_active ? "pill-green" : "pill-gray"}`}>
+                        {course.is_active ? "Active" : "Inactive"}
                       </span>
+                    </td>
+                    <td style={{ textAlign: "center" }}>
+                      <div style={{ display: "flex", gap: 6, justifyContent: "center", alignItems: "center" }}>
+                        <span
+                          className="pill pill-purple"
+                          style={{ fontSize: 11, cursor: "pointer" }}
+                          title="Active Enrollments"
+                          onClick={() => navigate(`/courses/${course.id}/enrollment`)}
+                        >
+                          <i className="fa-solid fa-user-check" style={{ marginRight: 4 }} />
+                          {course.active_count ?? 0}
+                        </span>
+                        {(course.passed_count ?? 0) > 0 && (
+                          <span
+                            className="pill pill-orange"
+                            style={{ fontSize: 11, cursor: "pointer" }}
+                            title="Passed Enrollments"
+                            onClick={() => navigate(`/courses/${course.id}/enrollment`)}
+                          >
+                            <i className="fa-solid fa-user-clock" style={{ marginRight: 4 }} />
+                            {course.passed_count ?? 0}
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td>
                       <div className="action-group" style={{ justifyContent: "center" }}>
@@ -305,15 +340,17 @@ export default function Courses() {
                         >
                           <i className="fa-regular fa-eye"></i>
                         </button>
-                        <button
-                          id={`manage-enrollment-${course.id}`}
-                          className="act-btn"
-                          title="Manage Student Enrollment"
-                          style={{ color: "#8b5cf6" }}
-                          onClick={() => navigate(`/courses/${course.id}/enrollment`)}
-                        >
-                          <i className="fa-solid fa-user-group"></i>
-                        </button>
+                        {course.is_active && (
+                          <button
+                            id={`manage-enrollment-${course.id}`}
+                            className="act-btn"
+                            title="Manage Student Enrollment"
+                            style={{ color: "#8b5cf6" }}
+                            onClick={() => navigate(`/courses/${course.id}/enrollment`)}
+                          >
+                            <i className="fa-solid fa-user-group"></i>
+                          </button>
+                        )}
                         <button
                           id={`edit-course-${course.id}`}
                           className="act-btn act-edit"
@@ -468,6 +505,19 @@ export default function Courses() {
                   ))}
                 </div>
                 {formErrors.class_days && <div className="field-error">{formErrors.class_days}</div>}
+              </div>
+
+              <div className="form-group span-2">
+                <label className="form-label" style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", marginTop: 16 }}>
+                  <input
+                    type="checkbox"
+                    name="is_active"
+                    checked={form.is_active}
+                    onChange={(e) => setForm(f => ({ ...f, is_active: e.target.checked }))}
+                    style={{ width: 18, height: 18, accentColor: "var(--active)" }}
+                  />
+                  <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-dark)" }}>Active Course (Available for enrollment & marking attendance)</span>
+                </label>
               </div>
             </div>
           </div>

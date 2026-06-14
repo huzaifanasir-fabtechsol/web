@@ -1,41 +1,17 @@
 import { API_URL } from "./config";
+import { authFetch } from "./apiClient";
 const BASE_URL = `${API_URL}/api`;
-
-/** Authenticated fetch helper */
-async function authFetch(url, method = "GET", body = null, token = null, isFormData = false) {
-  const headers = {};
-  if (!isFormData) headers["Content-Type"] = "application/json";
-  if (token) headers["Authorization"] = `Bearer ${token}`;
-
-  const opts = { method, headers };
-  if (body) opts.body = isFormData ? body : JSON.stringify(body);
-
-  const res = await fetch(url, opts);
-  
-  // 204 No Content
-  if (res.status === 204) return null;
-
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const message =
-      data?.detail ||
-      data?.non_field_errors?.[0] ||
-      Object.values(data).flat()[0] ||
-      "Request failed.";
-    throw new Error(message);
-  }
-  return data;
-}
 
 // ── Course API ──────────────────────────────────────────────────────────────
 
 /**
  * GET /api/courses/?search=&class_days=&page=&page_size=
  */
-export function listCourses(token, { search = "", class_days = "", page = 1, page_size = 10 } = {}) {
+export function listCourses(token, { search = "", class_days = "", is_active = "", page = 1, page_size = 10 } = {}) {
   const params = new URLSearchParams();
   if (search) params.set("search", search);
   if (class_days) params.set("class_days", class_days);
+  if (is_active !== undefined && is_active !== "") params.set("is_active", is_active);
   params.set("page", page);
   params.set("page_size", page_size);
   return authFetch(`${BASE_URL}/courses/?${params}`, "GET", null, token);
@@ -76,8 +52,10 @@ export function getCourseEnrollment(token, courseId, { tab = "assigned", search 
 }
 
 /** POST /api/courses/:id/enrollment/ — bulk enroll */
-export function bulkEnrollStudents(token, courseId, studentIds) {
-  return authFetch(`${BASE_URL}/courses/${courseId}/enrollment/`, "POST", { student_ids: studentIds }, token);
+export function bulkEnrollStudents(token, courseId, studentIds, startDate = null) {
+  const payload = { student_ids: studentIds };
+  if (startDate) payload.start_date = startDate;
+  return authFetch(`${BASE_URL}/courses/${courseId}/enrollment/`, "POST", payload, token);
 }
 
 /** DELETE /api/courses/:id/enrollment/ — bulk unenroll */

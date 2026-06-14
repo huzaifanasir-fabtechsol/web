@@ -40,6 +40,7 @@ class Course(models.Model):
     class_time = models.TimeField()
     class_days = models.JSONField(default=list, help_text="List of weekdays e.g. ['Monday', 'Wednesday']")
     created_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):

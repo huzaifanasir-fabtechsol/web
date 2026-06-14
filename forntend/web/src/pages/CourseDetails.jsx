@@ -72,15 +72,17 @@ export default function CourseDetails() {
           </div>
         </div>
         <div style={{ display: "flex", gap: 10 }}>
-          <button
-            className="btn btn-primary"
-            style={{ fontSize: 13 }}
-            onClick={() => navigate(`/courses/${course.id}/enrollment`)}
-          >
-            <i className="fa-solid fa-user-group" /> Manage Enrollment
-          </button>
-          <span className="pill pill-purple" style={{ fontSize: 13, padding: "6px 14px" }}>
-            <i className="fa-solid fa-graduation-cap"></i> Program Active
+          {course.is_active && (
+            <button
+              className="btn btn-primary"
+              style={{ fontSize: 13 }}
+              onClick={() => navigate(`/courses/${course.id}/enrollment`)}
+            >
+              <i className="fa-solid fa-user-group" /> Manage Enrollment
+            </button>
+          )}
+          <span className={`pill ${course.is_active ? "pill-purple" : "pill-gray"}`} style={{ fontSize: 13, padding: "6px 14px" }}>
+            <i className="fa-solid fa-graduation-cap"></i> {course.is_active ? "Program Active" : "Program Inactive"}
           </span>
         </div>
       </div>
@@ -173,19 +175,29 @@ export default function CourseDetails() {
               </div>
               <div className="card-body">
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <div style={{ textAlign: "center" }}>
-                    <div style={{ fontSize: 36, fontWeight: 800, color: "var(--active)" }}>
-                      {course.enrolled_count ?? 0}
+                  <div style={{ display: "flex", gap: 24 }}>
+                    <div style={{ textAlign: "center" }}>
+                      <div style={{ fontSize: 32, fontWeight: 800, color: "#16a34a" }}>
+                        {course.active_count ?? 0}
+                      </div>
+                      <div style={{ fontSize: 11, color: "var(--text-soft)", marginTop: 4, fontWeight: 600 }}>Active</div>
                     </div>
-                    <div style={{ fontSize: 12, color: "var(--text-soft)", marginTop: 4 }}>Students Enrolled</div>
+                    <div style={{ textAlign: "center" }}>
+                      <div style={{ fontSize: 32, fontWeight: 800, color: "#ea580c" }}>
+                        {course.passed_count ?? 0}
+                      </div>
+                      <div style={{ fontSize: 11, color: "var(--text-soft)", marginTop: 4, fontWeight: 600 }}>Passed</div>
+                    </div>
                   </div>
-                  <button
-                    className="btn btn-primary"
-                    style={{ fontSize: 12 }}
-                    onClick={() => navigate(`/courses/${course.id}/enrollment`)}
-                  >
-                    <i className="fa-solid fa-arrow-right" /> Manage Enrollment
-                  </button>
+                  {course.is_active && (
+                    <button
+                      className="btn btn-primary"
+                      style={{ fontSize: 12 }}
+                      onClick={() => navigate(`/courses/${course.id}/enrollment`)}
+                    >
+                      <i className="fa-solid fa-arrow-right" /> Manage Enrollment
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
