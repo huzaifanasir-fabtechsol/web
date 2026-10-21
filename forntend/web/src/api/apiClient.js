@@ -1,4 +1,5 @@
 import { API_URL } from "./config";
+import { getMockResponse } from "./mockData";
 
 // Listeners to keep AuthContext state synchronized with silent refreshes
 const tokenListeners = [];
@@ -33,6 +34,11 @@ export async function authFetch(url, method = "GET", body = null, token = null, 
   const opts = { method, headers };
   if (body) opts.body = isFormData ? body : JSON.stringify(body);
 
+  if (currentToken?.startsWith("mock_")) {
+    const mock = getMockResponse(url, method, body);
+    if (mock !== undefined) return mock;
+  }
+
   try {
     const res = await fetch(url, opts);
 
@@ -45,7 +51,7 @@ export async function authFetch(url, method = "GET", body = null, token = null, 
       }
 
       const refresh = localStorage.getItem("hrs_refresh");
-      if (!refresh) {
+      if (!refresh || refresh.startsWith("mock_")) {
         forceLogout();
         throw new Error("Session expired. Please log in again.");
       }
@@ -87,6 +93,10 @@ export async function authFetch(url, method = "GET", body = null, token = null, 
     }
     return data;
   } catch (err) {
+    if (err.name === "TypeError" || err.message?.includes("fetch")) {
+      const mock = getMockResponse(url, method, body);
+      if (mock !== undefined) return mock;
+    }
     throw err;
   }
 }

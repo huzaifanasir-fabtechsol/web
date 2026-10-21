@@ -9,53 +9,82 @@ export default function Sidebar() {
     logout();
     navigate("/login", { replace: true });
   };
+
   return (
     <aside className="sidebar">
-      <div className="sidebar-logo">
-        <img src="/logo.png" alt="EquiManage Logo" style={{ width: "36px", height: "36px", objectFit: "contain" }} />
-        <div>
-          <div className="logo-text">Abu Ali Horse</div>
-          <div className="logo-sub">Riding School System</div>
+      {/* Brand Header */}
+      <div className="sidebar-brand-container">
+        <div className="sidebar-logo-wrap">
+          <img src="/logo.png" alt="EquiManage Logo" className="sidebar-logo-img" />
+        </div>
+        <div className="sidebar-title-wrap">
+          <div className="sidebar-brand-name">Abu Ali Horse</div>
+          <div className="sidebar-brand-sub">Riding School System</div>
         </div>
       </div>
 
-      <NavLink to="/" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
-        <i className="fa-solid fa-chart-pie"></i> Dashboard
-      </NavLink>
-      <NavLink to="/students" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
-        <i className="fa-solid fa-user-graduate"></i> Students <span></span>
-      </NavLink>
-      {/* <NavLink to="/riders" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
-        <i className="fa-solid fa-person-biking"></i> Riders
-      </NavLink> */}
-      <NavLink to="/horses" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
-        <i className="fa-solid fa-horse-head"></i> Horses
-      </NavLink>
-      <NavLink to="/horse-owners" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
-        <i className="fa-solid fa-id-card"></i> Horse Owners
-      </NavLink>
-      <NavLink to="/courses" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
-        <i className="fa-solid fa-book-open"></i> Courses
-      </NavLink>
-      <NavLink to="/attendance" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
-        <i className="fa-solid fa-clipboard-check"></i> Attendance
-      </NavLink>
-      <NavLink to="/fees/records" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
-        <i className="fa-solid fa-money-bill-wave"></i> Transactions
-      </NavLink>
-      <NavLink to="/workers/list" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
-        <i className="fa-solid fa-hard-hat"></i> Workers
-      </NavLink>
-      <NavLink to="/reports" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
-        <i className="fa-solid fa-chart-bar"></i> Reports
-      </NavLink>
+      {/* Gold Divider matching login page */}
+      <div className="sidebar-gold-divider"></div>
 
-      <div className="sidebar-bottom">
-        <NavLink to="/settings" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
-          <i className="fa-solid fa-gear"></i> Settings
+      <div className="nav-label">Navigation</div>
+
+      <nav className="sidebar-nav-list">
+        <NavLink to="/" end className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+          <span className="nav-icon-wrap"><i className="fa-solid fa-chart-pie"></i></span>
+          <span className="nav-text">Dashboard</span>
         </NavLink>
-        <button onClick={handleLogout} className="nav-item logout" style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', font: 'inherit' }}>
-          <i className="fa-solid fa-arrow-right-from-bracket"></i> Logout
+
+        <NavLink to="/students" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+          <span className="nav-icon-wrap"><i className="fa-solid fa-user-graduate"></i></span>
+          <span className="nav-text">Students</span>
+        </NavLink>
+
+        <NavLink to="/horses" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+          <span className="nav-icon-wrap"><i className="fa-solid fa-horse-head"></i></span>
+          <span className="nav-text">Horses</span>
+        </NavLink>
+
+        <NavLink to="/horse-owners" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+          <span className="nav-icon-wrap"><i className="fa-solid fa-id-card"></i></span>
+          <span className="nav-text">Horse Owners</span>
+        </NavLink>
+
+        <NavLink to="/courses" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+          <span className="nav-icon-wrap"><i className="fa-solid fa-book-open"></i></span>
+          <span className="nav-text">Courses</span>
+        </NavLink>
+
+        <NavLink to="/attendance" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+          <span className="nav-icon-wrap"><i className="fa-solid fa-clipboard-check"></i></span>
+          <span className="nav-text">Attendance</span>
+        </NavLink>
+
+        <NavLink to="/fees/records" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+          <span className="nav-icon-wrap"><i className="fa-solid fa-money-bill-wave"></i></span>
+          <span className="nav-text">Transactions</span>
+        </NavLink>
+
+        <NavLink to="/workers/list" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+          <span className="nav-icon-wrap"><i className="fa-solid fa-hard-hat"></i></span>
+          <span className="nav-text">Workers</span>
+        </NavLink>
+
+        <NavLink to="/reports" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+          <span className="nav-icon-wrap"><i className="fa-solid fa-chart-bar"></i></span>
+          <span className="nav-text">Reports</span>
+        </NavLink>
+      </nav>
+
+      {/* Bottom section */}
+      <div className="sidebar-bottom">
+        <div className="sidebar-gold-divider sub-divider"></div>
+        <NavLink to="/settings" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+          <span className="nav-icon-wrap"><i className="fa-solid fa-gear"></i></span>
+          <span className="nav-text">Settings</span>
+        </NavLink>
+        <button onClick={handleLogout} className="nav-item logout-btn" title="Sign out of system">
+          <span className="nav-icon-wrap"><i className="fa-solid fa-arrow-right-from-bracket"></i></span>
+          <span className="nav-text">Sign Out</span>
         </button>
       </div>
     </aside>

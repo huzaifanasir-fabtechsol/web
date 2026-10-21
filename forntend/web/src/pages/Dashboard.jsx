@@ -70,8 +70,8 @@ function RevenueChart({ data, loading }) {
         {data.map((d, i) => {
           const percentage = (d.revenue / max) * 100;
           const isLast = i === data.length - 1;
-          const defaultBarColor = isLast ? "#1a1f2e" : "#e5e7eb";
-          const hoverBarColor = isLast ? "#374151" : "#d1d5db";
+          const defaultBarColor = isLast ? "#002F24" : "rgba(0, 47, 36, 0.16)";
+          const hoverBarColor = isLast ? "#004838" : "#C5A880";
 
           return (
             <div
@@ -92,9 +92,9 @@ function RevenueChart({ data, loading }) {
                 <span
                   style={{
                     fontSize: 10,
-                    color: "#6b7280",
+                    color: "#4e635b",
                     marginBottom: 6,
-                    fontWeight: 500,
+                    fontWeight: 600,
                     whiteSpace: "nowrap",
                     position: "absolute",
                     bottom: `calc(${Math.max(percentage, 4)}% + 6px)`,
@@ -112,9 +112,9 @@ function RevenueChart({ data, loading }) {
                   width: "100%",
                   maxWidth: 32,
                   height: d.revenue > 0 ? `${percentage}%` : "6px",
-                  backgroundColor: d.revenue > 0 ? defaultBarColor : "#f3f4f6",
-                  borderRadius: d.revenue > 0 ? "5px 5px 0 0" : "3px",
-                  border: d.revenue > 0 ? "none" : "1px dashed #e5e7eb",
+                  backgroundColor: d.revenue > 0 ? defaultBarColor : "#eef3f0",
+                  borderRadius: d.revenue > 0 ? "6px 6px 0 0" : "3px",
+                  border: d.revenue > 0 ? "none" : "1px dashed #cbd8d2",
                   transition: "height 0.4s ease, background-color 0.2s ease",
                   cursor: "pointer",
                 }}
@@ -142,8 +142,8 @@ function RevenueChart({ data, loading }) {
       >
         {data.map((d, i) => {
           const isLast = i === data.length - 1;
-          const labelColor = isLast ? "#1a1f2e" : "#9ca3af";
-          const labelWeight = isLast ? "700" : "400";
+          const labelColor = isLast ? "#002F24" : "#8a9e96";
+          const labelWeight = isLast ? "700" : "500";
           const shortLabel = d.label.length > 6 ? d.label.slice(5) : d.label;
 
           return (
@@ -307,7 +307,7 @@ export default function Dashboard() {
               label="Total Students"
               value={fmt(summary?.totalStudents?.count ?? 0)}
               icon="fa-users"
-              iconCls="icon-blue"
+              iconCls="icon-forest"
               trend={summary?.totalStudents?.trend}
               sub="vs last month"
             />
@@ -315,7 +315,7 @@ export default function Dashboard() {
               label="Total Horses"
               value={fmt(summary?.horses?.count ?? 0)}
               icon="fa-horse-head"
-              iconCls="icon-orange"
+              iconCls="icon-gold"
               trend={summary?.horses?.trend}
               sub="vs last month"
             />
@@ -323,7 +323,7 @@ export default function Dashboard() {
               label="Revenue"
               value={fmtPKR(paid)}
               icon="fa-sack-dollar"
-              iconCls="icon-green"
+              iconCls="icon-forest"
               trend={summary?.revenue?.trend}
               sub="paid this month"
             />
@@ -331,7 +331,7 @@ export default function Dashboard() {
               label="Active Courses"
               value={fmt(summary?.courses?.count ?? 0)}
               icon="fa-book-open"
-              iconCls="icon-purple"
+              iconCls="icon-gold"
               trend={summary?.courses?.trend}
               sub="vs last month"
             />
@@ -343,15 +343,15 @@ export default function Dashboard() {
       {!loadSummary && (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 24 }}>
           {[
-            { label: "Paid Amount", amount: paid, cls: "icon-green", icon: "fa-circle-check", color: "#16a34a" },
-            { label: "Pending Amount", amount: pending, cls: "icon-amber", icon: "fa-clock", color: "#d97706" },
+            { label: "Paid Amount", amount: paid, cls: "icon-green", icon: "fa-circle-check", color: "#002F24" },
+            { label: "Pending Amount", amount: pending, cls: "icon-amber", icon: "fa-clock", color: "#b45309" },
           ].map(({ label, amount, cls, icon, color }) => (
             <div key={label} className="mini-card">
               <div className={`mini-icon ${cls}`}>
                 <i className={`fa-solid ${icon}`} />
               </div>
               <div>
-                <div className="mini-val" style={{ fontSize: 20, color }}>{fmtPKR(amount)}</div>
+                <div className="mini-val" style={{ fontSize: 22, color }}>{fmtPKR(amount)}</div>
                 <div className="mini-lbl">{label}</div>
               </div>
             </div>
@@ -363,12 +363,12 @@ export default function Dashboard() {
       <div className="card">
         <div className="card-header">
           <div className="card-header-left">
-            <div className="card-icon icon-blue">
+            <div className="card-icon icon-forest">
               <i className="fa-solid fa-chart-line" />
             </div>
             <div>
               <div className="card-title">Revenue Analytics</div>
-              <div className="card-sub">Monthly paid revenue</div>
+              <div className="card-sub">Monthly paid academy revenue</div>
             </div>
           </div>
           <select
@@ -393,14 +393,14 @@ export default function Dashboard() {
         <div className="table-card">
           <div className="table-toolbar" style={{ borderBottom: "1px solid var(--border)" }}>
             <div className="table-title">
-              <i className="fa-solid fa-users" style={{ marginRight: 8, color: "#3b82f6", fontSize: 13 }} />
+              <i className="fa-solid fa-users" style={{ marginRight: 8, color: "var(--primary)", fontSize: 14 }} />
               Latest Students
             </div>
             <Link
               to="/students"
-              style={{ marginLeft: "auto", fontSize: 12, fontWeight: 600, color: "var(--text-mid)", textDecoration: "none" }}
+              style={{ marginLeft: "auto", fontSize: 12.5, fontWeight: 700, color: "var(--primary)", textDecoration: "none" }}
             >
-              View All <i className="fa-solid fa-arrow-right" style={{ fontSize: 10 }} />
+              View All <i className="fa-solid fa-arrow-right" style={{ fontSize: 10, color: "var(--gold)" }} />
             </Link>
           </div>
           {loadStudents ? (
@@ -464,14 +464,14 @@ export default function Dashboard() {
         <div className="table-card">
           <div className="table-toolbar" style={{ borderBottom: "1px solid var(--border)" }}>
             <div className="table-title">
-              <i className="fa-solid fa-horse-head" style={{ marginRight: 8, color: "#f97316", fontSize: 13 }} />
+              <i className="fa-solid fa-horse-head" style={{ marginRight: 8, color: "var(--gold)", fontSize: 14 }} />
               Latest Horses
             </div>
             <Link
               to="/horses"
-              style={{ marginLeft: "auto", fontSize: 12, fontWeight: 600, color: "var(--text-mid)", textDecoration: "none" }}
+              style={{ marginLeft: "auto", fontSize: 12.5, fontWeight: 700, color: "var(--primary)", textDecoration: "none" }}
             >
-              View All <i className="fa-solid fa-arrow-right" style={{ fontSize: 10 }} />
+              View All <i className="fa-solid fa-arrow-right" style={{ fontSize: 10, color: "var(--gold)" }} />
             </Link>
           </div>
           {loadHorses ? (

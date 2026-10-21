@@ -698,6 +698,42 @@ export default function Login() {
               <span>{isSuccess ? 'Access Granted...' : (isLoading ? 'Logging in...' : 'Sign In')}</span>
               {!isLoading && !isSuccess && <i className="fa-solid fa-arrow-right"></i>}
             </button>
+
+            {/* Quick Demo Preview button */}
+            <button
+              type="button"
+              id="demo-preview-btn"
+              onClick={() => {
+                saveSession("mock_demo_token", "mock_refresh_token", {
+                  id: 1,
+                  email: "director@equimanage.com",
+                  full_name: "Director Admin",
+                });
+                setIsSuccess(true);
+                setTimeout(() => navigate("/"), 400);
+              }}
+              style={{
+                width: "100%",
+                height: "44px",
+                background: "#faf6f0",
+                border: "1.5px dashed #C5A880",
+                borderRadius: "12px",
+                fontSize: "13px",
+                fontWeight: "600",
+                color: "#002F24",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "#f3ebd9"; e.currentTarget.style.borderColor = "#002F24"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "#faf6f0"; e.currentTarget.style.borderColor = "#C5A880"; }}
+            >
+              <i className="fa-solid fa-horse" style={{ color: "#C5A880" }}></i>
+              <span>Explore Internal UI (Demo Preview)</span>
+            </button>
           </form>
 
         </div>

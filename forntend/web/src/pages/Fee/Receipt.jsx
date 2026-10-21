@@ -209,27 +209,28 @@ export default function Receipt() {
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 10 }}>
                 <div style={{
-                  width: 52, height: 52, borderRadius: 12,
-                  background: "linear-gradient(135deg,#f97316,#d97706)",
+                  width: 54, height: 54, borderRadius: 12,
+                  background: "rgba(255, 255, 255, 0.1)",
+                  border: "1.5px solid #C5A880",
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 24, color: "#fff", flexShrink: 0,
-                  boxShadow: "0 4px 12px rgba(249,115,22,.4)",
+                  flexShrink: 0, padding: 5,
+                  boxShadow: "0 4px 14px rgba(0,0,0,.3)",
                 }}>
-                  <i className="fa-solid fa-horse" />
+                  <img src="/logo.png" alt="EquiManage Logo" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
                 </div>
                 <div>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: "#f6e05e", letterSpacing: "0.04em", textTransform: "uppercase", lineHeight: 1.1 }}>
+                  <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 800, color: "#C5A880", letterSpacing: "0.02em", lineHeight: 1.15 }}>
                     Abu Ali
                   </div>
-                  <div style={{ fontSize: 20, fontWeight: 900, color: "#f6e05e", letterSpacing: "0.04em", textTransform: "uppercase", lineHeight: 1.1 }}>
-                    Riding School
+                  <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, fontWeight: 700, color: "#ffffff", letterSpacing: "0.06em", textTransform: "uppercase", lineHeight: 1.2 }}>
+                    Horse Riding School
                   </div>
                 </div>
               </div>
-              <div style={{ fontSize: 11.5, color: "rgba(255,255,255,.65)", lineHeight: 1.8 }}>
-                <i className="fa-solid fa-location-dot" style={{ marginRight: 5, color: "#f97316" }} />
+              <div style={{ fontSize: 11.5, color: "rgba(255,255,255,.75)", lineHeight: 1.8 }}>
+                <i className="fa-solid fa-location-dot" style={{ marginRight: 6, color: "#C5A880" }} />
                 Aulakh Awan, Near City Villas, Imtiaz Mall, Sialkot<br />
-                <i className="fa-solid fa-phone" style={{ marginRight: 5, color: "#f97316" }} />
+                <i className="fa-solid fa-phone" style={{ marginRight: 6, color: "#C5A880" }} />
                 0313-3313131 &nbsp;|&nbsp; 0310-8025673
               </div>
             </div>
@@ -267,8 +268,8 @@ export default function Receipt() {
           </div>
         </div>
 
-        {/* ── Orange accent bar ── */}
-        <div style={{ height: 4, background: "linear-gradient(90deg,#f97316,#d97706,#f97316)" }} />
+        {/* ── Gold accent bar ── */}
+        <div style={{ height: 4, background: "linear-gradient(90deg, #C5A880, #e8dbc8, #C5A880)" }} />
 
         {/* ───────────────────────────────────────────
             BODY
@@ -291,13 +292,13 @@ export default function Receipt() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 36px", marginBottom: 24 }}>
             {/* Payment Method */}
             <div style={{ padding: "10px 0", borderBottom: "1px solid #f0f0f0" }}>
-              <div style={{ fontSize: 10.5, color: "#9ca3af", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 4 }}>
+              <div style={{ fontSize: 10.5, color: "#8a9e96", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 4 }}>
                 Payment Method
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 600, color: "#1a1f2e" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 600, color: "#002F24" }}>
                 <span style={{
                   width: 28, height: 28, borderRadius: 8,
-                  background: "#fff7ed", color: "#f97316",
+                  background: "rgba(197, 168, 128, 0.18)", color: "#937346",
                   display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13,
                 }}>
                   <i className={`fa-solid ${METHOD_ICON[txn?.payment_method] || "fa-money-bill"}`} />
@@ -314,10 +315,10 @@ export default function Receipt() {
               />
             ) : (
               <div style={{ padding: "10px 0", borderBottom: "1px solid #f0f0f0" }}>
-                <div style={{ fontSize: 10.5, color: "#9ca3af", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 4 }}>
+                <div style={{ fontSize: 10.5, color: "#8a9e96", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 4 }}>
                   Account / Card No.
                 </div>
-                <div style={{ fontSize: 13, color: "#9ca3af", fontStyle: "italic" }}>N/A (Cash)</div>
+                <div style={{ fontSize: 13, color: "#8a9e96", fontStyle: "italic" }}>N/A (Cash)</div>
               </div>
             )}
 
@@ -326,8 +327,8 @@ export default function Receipt() {
               label="Transaction Type"
               value={txn?.fee_type || "—"}
               pill
-              pillColor={txn?.fee_type === "Registration Fee" ? "#eff6ff" : "#faf5ff"}
-              pillText={txn?.fee_type === "Registration Fee" ? "#1d4ed8" : "#7e22ce"}
+              pillColor={txn?.fee_type === "Registration Fee" ? "rgba(0, 47, 36, 0.08)" : "rgba(197, 168, 128, 0.2)"}
+              pillText={txn?.fee_type === "Registration Fee" ? "#002F24" : "#937346"}
             />
 
             {/* Course Name — only for Course Fee */}
@@ -349,27 +350,29 @@ export default function Receipt() {
 
           {/* ── Amount Summary Box ── */}
           <div style={{
-            background: "linear-gradient(135deg,#1a1f2e,#2d3548)",
-            borderRadius: 14, padding: "20px 28px",
+            background: "linear-gradient(135deg, #00231b, #002F24 50%, #004334)",
+            borderRadius: 16, padding: "22px 28px",
             display: "flex", justifyContent: "space-between", alignItems: "center",
             marginBottom: 28,
+            boxShadow: "0 8px 24px rgba(0, 47, 36, 0.2)",
+            border: "1px solid rgba(197, 168, 128, 0.3)",
           }}>
             <div>
-              <div style={{ fontSize: 11.5, color: "rgba(255,255,255,.55)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>
+              <div style={{ fontSize: 11, color: "rgba(197, 168, 128, 0.9)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.09em", marginBottom: 6 }}>
                 Amount Paid
               </div>
-              <div style={{ fontSize: 34, fontWeight: 900, color: "#f6e05e", lineHeight: 1 }}>
+              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 36, fontWeight: 700, color: "#C5A880", lineHeight: 1 }}>
                 {amountFormatted}
               </div>
             </div>
             <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,.5)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,.65)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 600 }}>
                 Payment Status
               </div>
               <div style={{
                 display: "inline-block", padding: "8px 20px", borderRadius: 20,
                 background: statusStyle.bg, color: statusStyle.color,
-                fontWeight: 900, fontSize: 14, letterSpacing: "0.04em",
+                fontWeight: 800, fontSize: 13, letterSpacing: "0.04em",
               }}>
                 {statusStyle.label || "—"}
               </div>
@@ -377,19 +380,17 @@ export default function Receipt() {
           </div>
 
           {/* ── Signature Section ── */}
-          {/* <SectionHeading icon="fa-signature" label="Signatures" /> */}
-
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 60px", marginBottom: 28, marginTop: 8 }}>
             <div>
-              <div style={{ borderTop: "1.5px solid #1a1f2e", paddingTop: 10, marginTop: 50 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#1a1f2e" }}>Authorised Signature</div>
-                <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 2 }}>Abu Ali Riding School</div>
+              <div style={{ borderTop: "1.5px solid #002F24", paddingTop: 10, marginTop: 50 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#002F24" }}>Authorised Signature</div>
+                <div style={{ fontSize: 11, color: "#8a9e96", marginTop: 2 }}>Abu Ali Riding School</div>
               </div>
             </div>
             <div>
-              <div style={{ borderTop: "1.5px solid #1a1f2e", paddingTop: 10, marginTop: 50 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#1a1f2e" }}>Applicant's Signature</div>
-                <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 2 }}>
+              <div style={{ borderTop: "1.5px solid #002F24", paddingTop: 10, marginTop: 50 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#002F24" }}>Applicant's Signature</div>
+                <div style={{ fontSize: 11, color: "#8a9e96", marginTop: 2 }}>
                   {student?.name || txn?.student_name || "Student"}
                 </div>
               </div>

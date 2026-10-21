@@ -47,6 +47,7 @@ export function AuthProvider({ children }) {
    */
   const silentRefresh = useCallback(async () => {
     if (!refreshTokenVal) return;
+    if (refreshTokenVal.startsWith("mock_")) return;
     try {
       const data = await apiRefreshToken(refreshTokenVal);
       localStorage.setItem(STORAGE_KEYS.ACCESS, data.access);
