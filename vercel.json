@@ -1,4 +1,7 @@
 {
+  "buildCommand": "cd forntend/web && npm install && npm run build",
+  "outputDirectory": "forntend/web/dist",
+  "framework": "vite",
   "rewrites": [
     {
       "source": "/(.*)",
